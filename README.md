@@ -1,6 +1,6 @@
 # pls
 
-`pls` is a natural-language shell command suggester.
+`pls` is a natural-language shell command suggester written in Go.
 
 Current MVP goals:
 - command generation only
@@ -16,7 +16,7 @@ Current MVP goals:
 pls show me all dotfiles in this directory
 pls find files bigger than 500mb
 pls --provider openai --model gpt-4.1-mini why is port 3000 busy
-pls --provider ollama --model qwen2.5-coder:7b show hidden files here
+pls --provider ollama --model qwen2.5-coder:7b-instruct-q4_K_M show hidden files here
 pls --json list the 10 biggest files under the current directory
 ```
 
@@ -47,26 +47,23 @@ export PLS_PROVIDER=openai
 export PLS_MODEL=gpt-4.1-mini
 ```
 
-## Run locally
+## Build
 
 ```bash
 cd pls
-chmod +x ./bin/pls.js
-node ./bin/pls.js show hidden files here
+go build -o bin/pls ./cmd/pls
 ```
 
-## Install locally into PATH
-
-From this folder:
+## Run
 
 ```bash
-npm link
+./bin/pls show hidden files here
 ```
 
-Then:
+## Install into PATH
 
 ```bash
-pls show hidden files here
+go install ./cmd/pls
 ```
 
 ## Notes
@@ -74,3 +71,4 @@ pls show hidden files here
 - Everything after `pls` is treated as the request unless parsed as a known flag.
 - This version does not execute commands yet.
 - Safety policy can escalate risky commands for manual review.
+- The previous Node prototype is preserved under `legacy/node-prototype/`.
