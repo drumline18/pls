@@ -40,3 +40,14 @@ func TestParseArgsSupportsConfigFlags(t *testing.T) {
 		t.Fatalf("expected PrintConfigPath to be true")
 	}
 }
+
+func TestParseArgsLeavesDoctorAsRequest(t *testing.T) {
+	parsed, err := ParseArgs([]string{"doctor"})
+	if err != nil {
+		t.Fatalf("ParseArgs returned error: %v", err)
+	}
+
+	if len(parsed.RequestParts) != 1 || parsed.RequestParts[0] != "doctor" {
+		t.Fatalf("unexpected request parts: %#v", parsed.RequestParts)
+	}
+}

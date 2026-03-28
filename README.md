@@ -13,6 +13,7 @@ Current MVP goals:
 ## Examples
 
 ```bash
+pls doctor
 pls show me all dotfiles in this directory
 pls find files bigger than 500mb
 pls --provider openai --model gpt-4.1-mini why is port 3000 busy
@@ -137,6 +138,23 @@ GOBIN=$HOME/.local/bin go install ./cmd/pls
 ```bash
 pls show hidden files here
 ```
+
+## Doctor
+
+Run a quick local sanity check:
+
+```bash
+pls doctor
+```
+
+That checks things like:
+- resolved config path
+- whether the config file exists
+- current runtime OS/shell/cwd
+- whether `pls` is in `PATH`
+- provider basics and a lightweight health check
+
+It also opens with a bad joke, because `pls doctor` kind of deserves one.
 
 ## Development
 
