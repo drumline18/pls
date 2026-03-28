@@ -1,0 +1,37 @@
+package execute
+
+import (
+	"testing"
+
+	"pls/internal/types"
+)
+
+func TestShellInvocationDefaultsToLoginShellStyle(t *testing.T) {
+	name, args := shellInvocation("/bin/bash")
+	if name != "/bin/bash" {
+		t.Fatalf("unexpected shell name: %s", name)
+	}
+	if len(args) != 1 || args[0] != "-lc" {
+		t.Fatalf("unexpected shell args: %#v", args)
+	}
+}
+
+func TestShellInvocationHandlesFish(t *testing.T) {
+	_, args := shellInvocation("/usr/bin/fish")
+	if len(args) != 1 || args[0] != "-c" {
+		t.Fatalf("unexpected shell args: %#v", args)
+	}
+}
+
+func TestMaybePromptAndRunSkipsNonTTY(t *testing.T) {
+	run, code, err := MaybePromptAndRun(types.Suggestion{Command: "echo hi", Explanation: "x", Risk: "low"}, types.RuntimeContext{IsTTY: false})
+	if err != nil {
+		t.Fatalf("MaybePromptAndRun returned error: %v", err)
+	}
+	if run {
+		t.Fatalf("expected command not to run in non-TTY mode")
+	}
+	if code != 0 {
+		t.Fatalf("unexpected exit code: %d", code)
+	}
+}

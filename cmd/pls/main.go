@@ -12,6 +12,7 @@ import (
 	"pls/internal/cli"
 	"pls/internal/config"
 	"pls/internal/doctor"
+	"pls/internal/execute"
 	"pls/internal/render"
 	runtimeinfo "pls/internal/runtimeinfo"
 )
@@ -103,5 +104,15 @@ func run(args []string) int {
 	}
 
 	fmt.Fprintln(os.Stdout, render.Human(result))
+
+	runCommand, exitCode, err := execute.MaybePromptAndRun(result, runtimeContext)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+		return 1
+	}
+	if runCommand {
+		return exitCode
+	}
+
 	return 0
 }

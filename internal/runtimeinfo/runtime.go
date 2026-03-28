@@ -22,6 +22,7 @@ func Get(shellOverride, osOverride string) (types.RuntimeContext, error) {
 		CWD:           cwd,
 		OS:            normalizeOS(firstNonEmpty(osOverride, runtime.GOOS)),
 		Shell:         normalizeShell(shellPath),
+		ShellPath:     shellPath,
 		HomeDirectory: homeDirectory,
 		IsTTY:         isTTY(),
 	}, nil

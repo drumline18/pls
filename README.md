@@ -144,6 +144,14 @@ GOBIN=$HOME/.local/bin go install ./cmd/pls
 pls show hidden files here
 ```
 
+In an interactive terminal, `pls` now prompts before execution:
+
+```text
+Run it? [y/N]
+```
+
+If you answer `y`, it runs the suggested command through your shell. In non-interactive mode and `--json` mode, it stays suggestion-only.
+
 ## Doctor
 
 Run a quick local sanity check:
@@ -172,7 +180,7 @@ make print-config-path
 ## Notes
 
 - Everything after `pls` is treated as the request unless parsed as a known flag.
-- This version does not execute commands yet.
+- In a real TTY, `pls` can prompt with `Run it? [y/N]` and execute the suggested command through your shell.
 - Safety policy can escalate risky commands for manual review.
 - Style normalization prefers boring direct commands over parsing `ls` output for common listing tasks.
 - More advanced prompts can return concise shell loops for batch file operations when that is the clearest single command.
