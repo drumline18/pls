@@ -48,3 +48,13 @@ func TestMaybePromptAndRunSkipsWhenNoExecIsSet(t *testing.T) {
 		t.Fatalf("unexpected exit code: %d", code)
 	}
 }
+
+func TestMaybePromptAndRunSkipsPromptWhenYesIsSetAndCommandIsSafe(t *testing.T) {
+	run, _, err := MaybePromptAndRun(types.Suggestion{Command: "true", Explanation: "x", Risk: "low"}, types.RuntimeContext{IsTTY: false, ShellPath: "/bin/bash"}, types.Flags{Yes: true})
+	if err != nil {
+		t.Fatalf("MaybePromptAndRun returned error: %v", err)
+	}
+	if !run {
+		t.Fatalf("expected command to run immediately when --yes is set for a safe command")
+	}
+}

@@ -53,6 +53,7 @@ Environment:
   PLS_HOST                     Generic provider host override
   PLS_PROVIDER                 Default provider when flag is omitted
   PLS_MODEL                    Default model when flag is omitted
+  PLS_YOLO_MODE                true/false auto-run default for safe commands
   PLS_CONFIG                   Override config file path
 `
 

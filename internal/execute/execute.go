@@ -17,8 +17,8 @@ func MaybePromptAndRun(result types.Suggestion, runtimeContext types.RuntimeCont
 		return false, 0, nil
 	}
 
-	if flags.Yes && !result.RequiresConfirmation && !isHighRisk(result.Risk) {
-		fmt.Fprint(os.Stdout, "\nRunning without prompt because --yes was set.\n\n")
+	if flags.Yes && !flags.NoExec && !result.RequiresConfirmation && !isHighRisk(result.Risk) {
+		fmt.Fprint(os.Stdout, "\nRunning without prompt because auto-run mode is enabled.\n\n")
 		exitCode, err := runCommand(result.Command, runtimeContext)
 		return true, exitCode, err
 	}

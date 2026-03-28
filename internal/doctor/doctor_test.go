@@ -9,12 +9,16 @@ import (
 	"pls/internal/types"
 )
 
-func TestHumanIncludesJokeAndSections(t *testing.T) {
+func TestHumanIncludesJokeAndConfigSections(t *testing.T) {
 	output := Human(Report{
 		Joke:                 "Why did the CLI go to the doctor? It had too many terminal conditions.",
 		OverallStatus:        "ok",
-		ConfigPath:           "/tmp/pls.json",
+		ConfigPath:           "/tmp/global.json",
 		ConfigExists:         true,
+		LocalConfigPath:      "/tmp/project/pls.json",
+		LocalConfigExists:    true,
+		YoloMode:             true,
+		YoloSource:           "local",
 		Provider:             "ollama",
 		Model:                "qwen2.5-coder:7b-instruct-q4_K_M",
 		Host:                 "http://127.0.0.1:11434",
@@ -28,7 +32,7 @@ func TestHumanIncludesJokeAndSections(t *testing.T) {
 		ProviderMessage:      "connected to Ollama successfully",
 	})
 
-	for _, needle := range []string{"terminal conditions", "pls doctor", "Provider:", "connected to Ollama successfully"} {
+	for _, needle := range []string{"terminal conditions", "global path", "local override", "yolo mode: yes", "connected to Ollama successfully"} {
 		if !strings.Contains(output, needle) {
 			t.Fatalf("expected output to contain %q", needle)
 		}
@@ -44,6 +48,7 @@ func TestRunHandlesMissingOptionalConfig(t *testing.T) {
 	t.Setenv("PLS_OPENAI_API_KEY", "")
 	t.Setenv("OLLAMA_HOST", "")
 	t.Setenv("PLS_OLLAMA_HOST", "")
+	t.Setenv("PLS_YOLO_MODE", "")
 
 	report, err := Run(context.Background(), types.Flags{})
 	if err != nil {
@@ -55,5 +60,8 @@ func TestRunHandlesMissingOptionalConfig(t *testing.T) {
 	}
 	if report.Provider != "ollama" {
 		t.Fatalf("expected default provider ollama, got %s", report.Provider)
+	}
+	if report.YoloMode {
+		t.Fatalf("did not expect yolo mode to be enabled")
 	}
 }
