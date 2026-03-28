@@ -105,6 +105,12 @@ func linuxExamples(runtimeContext types.RuntimeContext) []map[string]any {
 
 	return []map[string]any{
 		example(
+			"show me all dotfiles in this directory",
+			"find . -maxdepth 1 -mindepth 1 -name '.*' -print",
+			"Lists hidden files and directories in the current directory.",
+			"low", false, false, "", "This directly lists dotfiles without parsing ls output.", "linux",
+		),
+		example(
 			"check if jellyfin is running",
 			"systemctl is-active jellyfin",
 			"Checks whether the Jellyfin systemd service is active.",

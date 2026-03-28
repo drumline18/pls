@@ -13,16 +13,22 @@ func TestBuildIncludesLinuxExamples(t *testing.T) {
 		t.Fatalf("expected examples in prompt payload")
 	}
 
-	found := false
+	foundJellyfin := false
+	foundDotfiles := false
 	for _, item := range examples {
 		response, _ := item["response"].(map[string]any)
 		if response["command"] == "systemctl is-active jellyfin" {
-			found = true
-			break
+			foundJellyfin = true
+		}
+		if response["command"] == "find . -maxdepth 1 -mindepth 1 -name '.*' -print" {
+			foundDotfiles = true
 		}
 	}
-	if !found {
+	if !foundJellyfin {
 		t.Fatalf("expected linux jellyfin example in prompt payload")
+	}
+	if !foundDotfiles {
+		t.Fatalf("expected linux dotfiles example in prompt payload")
 	}
 }
 

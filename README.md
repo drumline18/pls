@@ -7,7 +7,7 @@ Current MVP goals:
 - no quotes required around the prompt
 - Linux-first, shell-aware
 - platform-aware prompting for macOS and Windows PowerShell
-- provider support early: Ollama and OpenAI
+- broader provider support via any-llm-go
 - explain command + risk level
 - JSON output for future integrations
 
@@ -120,6 +120,20 @@ A copyable example also lives at `examples/config.example.json`.
 
 ## Provider configuration
 
+Currently wired providers:
+- Ollama
+- OpenAI
+- Anthropic
+- Gemini
+- Groq
+- DeepSeek
+- Mistral
+- Z.ai
+- llama.cpp server
+- llamafile server
+
+Right now the setup wizard is still opinionated toward **Ollama** and **OpenAI**. For the other providers, set `provider` + `model` in config or flags and use the provider's normal environment variable for credentials.
+
 ### Ollama
 
 Defaults:
@@ -145,6 +159,36 @@ export OPENAI_API_KEY=your_key_here
 export PLS_PROVIDER=openai
 export PLS_MODEL=gpt-4.1-mini
 ```
+
+### Additional providers
+
+Examples:
+
+```bash
+export PLS_PROVIDER=anthropic
+export PLS_MODEL=claude-3-5-haiku-latest
+export ANTHROPIC_API_KEY=your_key_here
+```
+
+```bash
+export PLS_PROVIDER=gemini
+export PLS_MODEL=gemini-2.5-flash
+export GEMINI_API_KEY=your_key_here
+```
+
+```bash
+export PLS_PROVIDER=groq
+export PLS_MODEL=llama-3.3-70b-versatile
+export GROQ_API_KEY=your_key_here
+```
+
+```bash
+export PLS_PROVIDER=deepseek
+export PLS_MODEL=deepseek-chat
+export DEEPSEEK_API_KEY=your_key_here
+```
+
+For local OpenAI-compatible servers, `provider=openai` with `host=<base-url>` is still useful.
 
 ### Execution / yolo mode
 

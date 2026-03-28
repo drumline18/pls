@@ -71,12 +71,12 @@ func TestHumanIncludesKeyFields(t *testing.T) {
 		EffectiveProvider:      "ollama",
 		EffectiveModel:         "qwen2.5-coder:7b-instruct-q4_K_M",
 		EffectiveHost:          "http://127.0.0.1:11434",
-		OpenAIAPIKeyConfigured: false,
+		ConfigStoredAPIKeyConfigured: false,
 		YoloMode:               true,
 		YoloSource:             "local",
 	})
 
-	for _, needle := range []string{"pls config show", "global path", "local override", "provider: ollama", "yolo mode: yes"} {
+	for _, needle := range []string{"pls config show", "global path", "local override", "provider: ollama", "yolo mode: yes", "config-stored api key configured: no"} {
 		if !strings.Contains(output, needle) {
 			t.Fatalf("expected output to contain %q", needle)
 		}

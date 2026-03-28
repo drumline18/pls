@@ -1,89 +1,52 @@
 package providers
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"strings"
-	"time"
 
+	anyllm "github.com/mozilla-ai/any-llm-go"
+	"github.com/mozilla-ai/any-llm-go/providers/anthropic"
+	"github.com/mozilla-ai/any-llm-go/providers/deepseek"
+	"github.com/mozilla-ai/any-llm-go/providers/gemini"
+	"github.com/mozilla-ai/any-llm-go/providers/groq"
+	"github.com/mozilla-ai/any-llm-go/providers/llamacpp"
+	"github.com/mozilla-ai/any-llm-go/providers/llamafile"
+	"github.com/mozilla-ai/any-llm-go/providers/mistral"
+	"github.com/mozilla-ai/any-llm-go/providers/ollama"
+	"github.com/mozilla-ai/any-llm-go/providers/openai"
+	"github.com/mozilla-ai/any-llm-go/providers/zai"
 	"pls/internal/types"
 	"pls/internal/util"
 )
 
 func Generate(ctx context.Context, cfg types.Config, messages types.Messages) (types.Suggestion, error) {
-	switch cfg.Provider {
-	case "openai":
-		return generateWithOpenAI(ctx, cfg, messages)
-	case "ollama":
-		return generateWithOllama(ctx, cfg, messages)
-	default:
-		return types.Suggestion{}, fmt.Errorf("unsupported provider: %s", cfg.Provider)
-	}
-}
-
-func generateWithOpenAI(ctx context.Context, cfg types.Config, messages types.Messages) (types.Suggestion, error) {
-	if cfg.OpenAIAPIKey == "" {
-		return types.Suggestion{}, fmt.Errorf("OPENAI_API_KEY or PLS_OPENAI_API_KEY is required for provider=openai")
+	provider, err := buildProvider(cfg)
+	if err != nil {
+		return types.Suggestion{}, err
 	}
 
-	payload := map[string]any{
-		"model":       cfg.Model,
-		"temperature": 0.1,
-		"response_format": map[string]any{
-			"type": "json_object",
+	temperature := 0.1
+	completion, err := provider.Completion(ctx, anyllm.CompletionParams{
+		Model:       cfg.Model,
+		Temperature: &temperature,
+		Messages: []anyllm.Message{
+			{Role: anyllm.RoleSystem, Content: messages.System},
+			{Role: anyllm.RoleUser, Content: util.MustJSON(messages.User)},
 		},
-		"messages": []map[string]string{
-			{"role": "system", "content": messages.System},
-			{"role": "user", "content": util.MustJSON(messages.User)},
-		},
+		ResponseFormat: suggestionResponseFormat(),
+	})
+	if err != nil {
+		return types.Suggestion{}, normalizeProviderError(cfg.Provider, err)
 	}
 
-	body, err := json.Marshal(payload)
+	content, err := completionContent(completion)
 	if err != nil {
 		return types.Suggestion{}, err
 	}
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(cfg.Host, "/")+"/v1/chat/completions", bytes.NewReader(body))
-	if err != nil {
-		return types.Suggestion{}, err
-	}
-	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("Authorization", "Bearer "+cfg.OpenAIAPIKey)
-
-	response, err := httpClient().Do(request)
-	if err != nil {
-		return types.Suggestion{}, err
-	}
-	defer response.Body.Close()
-
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return types.Suggestion{}, err
-	}
-
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		return types.Suggestion{}, fmt.Errorf("OpenAI request failed (%d): %s", response.StatusCode, strings.TrimSpace(string(responseBody)))
-	}
-
-	var parsed struct {
-		Choices []struct {
-			Message struct {
-				Content string `json:"content"`
-			} `json:"message"`
-		} `json:"choices"`
-	}
-	if err := json.Unmarshal(responseBody, &parsed); err != nil {
-		return types.Suggestion{}, err
-	}
-	if len(parsed.Choices) == 0 || strings.TrimSpace(parsed.Choices[0].Message.Content) == "" {
-		return types.Suggestion{}, fmt.Errorf("OpenAI response did not contain message content")
-	}
-
-	jsonBody, err := util.ExtractJSONObject(parsed.Choices[0].Message.Content)
+	jsonBody, err := util.ExtractJSONObject(content)
 	if err != nil {
 		return types.Suggestion{}, err
 	}
@@ -96,66 +59,112 @@ func generateWithOpenAI(ctx context.Context, cfg types.Config, messages types.Me
 	return suggestion, nil
 }
 
-func generateWithOllama(ctx context.Context, cfg types.Config, messages types.Messages) (types.Suggestion, error) {
-	payload := map[string]any{
-		"model":  cfg.Model,
-		"format": "json",
-		"stream": false,
-		"options": map[string]any{
-			"temperature": 0.1,
-		},
-		"messages": []map[string]string{
-			{"role": "system", "content": messages.System},
-			{"role": "user", "content": util.MustJSON(messages.User)},
-		},
+func buildProvider(cfg types.Config) (anyllm.Provider, error) {
+	providerName := strings.ToLower(strings.TrimSpace(cfg.Provider))
+	opts := make([]anyllm.Option, 0, 2)
+	if strings.TrimSpace(cfg.Host) != "" {
+		opts = append(opts, anyllm.WithBaseURL(cfg.Host))
+	}
+	if providerName == "openai" && strings.TrimSpace(cfg.OpenAIAPIKey) != "" {
+		opts = append(opts, anyllm.WithAPIKey(cfg.OpenAIAPIKey))
 	}
 
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return types.Suggestion{}, err
+	switch providerName {
+	case "openai":
+		return openai.New(opts...)
+	case "ollama":
+		return ollama.New(opts...)
+	case "anthropic":
+		return anthropic.New(opts...)
+	case "gemini":
+		return gemini.New(opts...)
+	case "groq":
+		return groq.New(opts...)
+	case "deepseek":
+		return deepseek.New(opts...)
+	case "mistral":
+		return mistral.New(opts...)
+	case "zai":
+		return zai.New(opts...)
+	case "llamacpp":
+		return llamacpp.New(opts...)
+	case "llamafile":
+		return llamafile.New(opts...)
+	default:
+		return nil, fmt.Errorf("unsupported provider: %s", cfg.Provider)
 	}
-
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(cfg.Host, "/")+"/api/chat", bytes.NewReader(body))
-	if err != nil {
-		return types.Suggestion{}, err
-	}
-	request.Header.Set("Content-Type", "application/json")
-
-	response, err := httpClient().Do(request)
-	if err != nil {
-		return types.Suggestion{}, err
-	}
-	defer response.Body.Close()
-
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return types.Suggestion{}, err
-	}
-
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		return types.Suggestion{}, fmt.Errorf("Ollama request failed (%d): %s", response.StatusCode, strings.TrimSpace(string(responseBody)))
-	}
-
-	var parsed struct {
-		Message struct {
-			Content string `json:"content"`
-		} `json:"message"`
-	}
-	if err := json.Unmarshal(responseBody, &parsed); err != nil {
-		return types.Suggestion{}, err
-	}
-	if strings.TrimSpace(parsed.Message.Content) == "" {
-		return types.Suggestion{}, fmt.Errorf("Ollama response did not contain message content")
-	}
-
-	var suggestion types.Suggestion
-	if err := json.Unmarshal([]byte(parsed.Message.Content), &suggestion); err != nil {
-		return types.Suggestion{}, err
-	}
-
-	return suggestion, nil
 }
 
-func httpClient() *http.Client {
-	return &http.Client{Timeout: 45 * time.Second}
+func suggestionResponseFormat() *anyllm.ResponseFormat {
+	strict := false
+	return &anyllm.ResponseFormat{
+		Type: "json_schema",
+		JSONSchema: &anyllm.JSONSchema{
+			Name:        "pls_suggestion",
+			Description: "Shell command suggestion payload for the pls CLI.",
+			Strict:      &strict,
+			Schema: map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"command": map[string]any{"type": "string"},
+					"explanation": map[string]any{"type": "string"},
+					"risk": map[string]any{"type": "string", "enum": []string{"low", "medium", "high", "critical"}},
+					"requiresConfirmation": map[string]any{"type": "boolean"},
+					"needsClarification": map[string]any{"type": "boolean"},
+					"clarificationQuestion": map[string]any{"type": "string"},
+					"notes": map[string]any{"type": "string"},
+					"platform": map[string]any{"type": "string"},
+					"refused": map[string]any{"type": "boolean"},
+				},
+				"required": []string{"risk", "requiresConfirmation", "needsClarification", "refused"},
+				"additionalProperties": false,
+			},
+		},
+	}
+}
+
+func completionContent(completion *anyllm.ChatCompletion) (string, error) {
+	if completion == nil || len(completion.Choices) == 0 {
+		return "", fmt.Errorf("provider response did not contain any choices")
+	}
+
+	content := completion.Choices[0].Message.Content
+	switch value := content.(type) {
+	case string:
+		if strings.TrimSpace(value) == "" {
+			return "", fmt.Errorf("provider response did not contain message content")
+		}
+		return value, nil
+	case []anyllm.ContentPart:
+		var builder strings.Builder
+		for _, part := range value {
+			if part.Type == "text" {
+				builder.WriteString(part.Text)
+			}
+		}
+		if strings.TrimSpace(builder.String()) == "" {
+			return "", fmt.Errorf("provider response did not contain text content")
+		}
+		return builder.String(), nil
+	default:
+		bytes, err := json.Marshal(content)
+		if err != nil {
+			return "", fmt.Errorf("provider response had unsupported content type %T", content)
+		}
+		if strings.TrimSpace(string(bytes)) == "" || string(bytes) == "null" {
+			return "", fmt.Errorf("provider response did not contain usable content")
+		}
+		return string(bytes), nil
+	}
+}
+
+func normalizeProviderError(provider string, err error) error {
+	if err == nil {
+		return nil
+	}
+	message := err.Error()
+	if provider == "openai" && strings.Contains(strings.ToLower(message), "api key") {
+		return fmt.Errorf("OPENAI_API_KEY or PLS_OPENAI_API_KEY is required for provider=openai")
+	}
+	return err
 }
