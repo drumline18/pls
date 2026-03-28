@@ -23,6 +23,7 @@ Usage:
   pls doctor
   pls setup
   pls config init
+  pls config local init
   pls config show
   pls config path
   pls --yes show hidden files here
@@ -37,6 +38,7 @@ Built-ins:
   pls doctor                  Show environment/config/provider health
   pls setup                   Friendly alias for pls config init
   pls config init             Interactive global config setup wizard
+  pls config local init       Interactive project-local override wizard
   pls config show             Show the effective config and active overrides
   pls config path             Print the global config path
 
