@@ -58,6 +58,45 @@ func TestNormalizeServiceInspectionRewritesPgrep(t *testing.T) {
 	}
 }
 
+func TestNormalizePrefixRenameUsesBasenameLoop(t *testing.T) {
+	suggestion := Normalize("prefix all jpgs with vacation-", types.RuntimeContext{OS: "linux"}, types.Suggestion{
+		Command:     "for f in ./*.jpg; do [ -e \"$f\" ] || continue; mv -- \"$f\" \"./vacation-${f#*.jpg}.jpg\"; done",
+		Explanation: "Prefixes JPG names.",
+		Risk:        "high",
+	})
+
+	want := "for f in ./*.jpg; do [ -e \"$f\" ] || continue; base=$(basename \"$f\"); mv -- \"$f\" \"./vacation-$base\"; done"
+	if suggestion.Command != want {
+		t.Fatalf("unexpected command: %s", suggestion.Command)
+	}
+}
+
+func TestNormalizeReplaceSpacesTouchesOnlyMatchingFiles(t *testing.T) {
+	suggestion := Normalize("replace spaces in all filenames here with underscores", types.RuntimeContext{OS: "linux"}, types.Suggestion{
+		Command:     "for f in *; do mv -- \"$f\" \"${f// /_}\"; done",
+		Explanation: "Replaces spaces.",
+		Risk:        "high",
+	})
+
+	want := "for f in ./*\\ *; do [ -e \"$f\" ] || continue; mv -- \"$f\" \"${f// /_}\"; done"
+	if suggestion.Command != want {
+		t.Fatalf("unexpected command: %s", suggestion.Command)
+	}
+}
+
+func TestNormalizeMoveIntoFolderUsesGuardedLoop(t *testing.T) {
+	suggestion := Normalize("move all srt files into a subtitles folder", types.RuntimeContext{OS: "linux"}, types.Suggestion{
+		Command:     "mkdir -p subtitles && mv *.srt subtitles/",
+		Explanation: "Moves subtitle files.",
+		Risk:        "low",
+	})
+
+	want := "mkdir -p \"./subtitles\" && for f in ./*.srt; do [ -e \"$f\" ] || continue; mv -- \"$f\" \"./subtitles/\"; done"
+	if suggestion.Command != want {
+		t.Fatalf("unexpected command: %s", suggestion.Command)
+	}
+}
+
 func TestNormalizeLeavesUnrelatedCommandsAlone(t *testing.T) {
 	original := types.Suggestion{
 		Command:     "ss -ltnp 'sport = :3000'",
