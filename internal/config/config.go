@@ -57,6 +57,9 @@ func Load(flags types.Flags) (types.Config, error) {
 		return types.Config{}, err
 	}
 	model = firstNonEmpty(flags.Model, os.Getenv("PLS_MODEL"), localCfg.Model, globalCfg.Model, model)
+	if strings.TrimSpace(model) == "" {
+		return types.Config{}, fmt.Errorf("no default model is defined for provider %s; set --model, PLS_MODEL, or config.model", provider)
+	}
 
 	host, err := defaultHostFor(provider)
 	if err != nil {
@@ -174,6 +177,20 @@ func defaultModelFor(provider string) (string, error) {
 		return "gpt-4.1-mini", nil
 	case "ollama":
 		return "qwen2.5-coder:7b-instruct-q4_K_M", nil
+	case "anthropic":
+		return "claude-3-5-haiku-latest", nil
+	case "gemini":
+		return "gemini-2.5-flash", nil
+	case "groq":
+		return "llama-3.3-70b-versatile", nil
+	case "deepseek":
+		return "deepseek-chat", nil
+	case "mistral":
+		return "mistral-small-latest", nil
+	case "zai":
+		return "glm-4.5-air", nil
+	case "llamacpp", "llamafile":
+		return "", nil
 	default:
 		return "", fmt.Errorf("unsupported provider: %s", provider)
 	}
@@ -185,6 +202,18 @@ func defaultHostFor(provider string) (string, error) {
 		return "https://api.openai.com", nil
 	case "ollama":
 		return "http://127.0.0.1:11434", nil
+	case "groq":
+		return "https://api.groq.com/openai/v1", nil
+	case "deepseek":
+		return "https://api.deepseek.com", nil
+	case "mistral":
+		return "https://api.mistral.ai/v1", nil
+	case "zai":
+		return "https://api.z.ai/api/paas/v4", nil
+	case "llamacpp", "llamafile":
+		return "http://127.0.0.1:8080/v1", nil
+	case "anthropic", "gemini":
+		return "", nil
 	default:
 		return "", fmt.Errorf("unsupported provider: %s", provider)
 	}

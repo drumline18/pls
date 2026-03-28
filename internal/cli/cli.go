@@ -43,7 +43,7 @@ Built-ins:
   pls config path             Print the global config path
 
 Flags:
-  --provider <openai|ollama>   LLM provider
+  --provider <name>            LLM provider (openai, ollama, anthropic, gemini, groq, deepseek, mistral, zai, llamacpp, llamafile)
   --model <name>               Model name to use
   --json                       Emit JSON only
   --yes                        Auto-run low/medium-risk commands without prompting

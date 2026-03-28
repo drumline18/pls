@@ -18,7 +18,7 @@ type Report struct {
 	EffectiveProvider     string `json:"effectiveProvider,omitempty"`
 	EffectiveModel        string `json:"effectiveModel,omitempty"`
 	EffectiveHost         string `json:"effectiveHost,omitempty"`
-	OpenAIAPIKeyConfigured bool  `json:"openaiApiKeyConfigured"`
+	ConfigStoredAPIKeyConfigured bool  `json:"configStoredApiKeyConfigured"`
 	YoloMode             bool   `json:"yoloMode"`
 	YoloSource           string `json:"yoloSource,omitempty"`
 }
@@ -46,7 +46,7 @@ func Run(flags types.Flags) (Report, error) {
 	report.EffectiveProvider = cfg.Provider
 	report.EffectiveModel = cfg.Model
 	report.EffectiveHost = cfg.Host
-	report.OpenAIAPIKeyConfigured = strings.TrimSpace(cfg.OpenAIAPIKey) != ""
+	report.ConfigStoredAPIKeyConfigured = strings.TrimSpace(cfg.OpenAIAPIKey) != ""
 	report.YoloMode = cfg.YoloMode
 	report.YoloSource = cfg.YoloSource
 	return report, nil
@@ -64,7 +64,7 @@ func Human(report Report) string {
 		fmt.Sprintf("  provider: %s", emptyFallback(report.EffectiveProvider, "unknown")),
 		fmt.Sprintf("  model: %s", emptyFallback(report.EffectiveModel, "unknown")),
 		fmt.Sprintf("  host: %s", emptyFallback(report.EffectiveHost, "unknown")),
-		fmt.Sprintf("  openai api key configured: %s", yesNo(report.OpenAIAPIKeyConfigured)),
+		fmt.Sprintf("  config-stored api key configured: %s", yesNo(report.ConfigStoredAPIKeyConfigured)),
 		fmt.Sprintf("  yolo mode: %s", yesNo(report.YoloMode)),
 		fmt.Sprintf("  yolo source: %s", emptyFallback(report.YoloSource, "default")),
 	}
