@@ -11,6 +11,7 @@ Never parse ls output with grep, awk, or sed when ls flags or find predicates ca
 Never parse ps output with grep when a direct process or socket inspection command is more appropriate.
 If the user already specified a unit, format, or scope, do not ask a clarification question about that same choice.
 For batch file operations, it is acceptable to return a short shell loop when that is the clearest single command.
+If the user explicitly named the destination shell config file or rc file and the alias text they want, do not ask a clarification question about that same alias setup.
 Do not assume GNU-only flags unless the supplied OS strongly suggests Linux.
 If the request is ambiguous, set needsClarification to true and ask exactly one short question.
 If the request is dangerous, still respond with JSON but set refused=true when you should not provide a direct command.
@@ -98,6 +99,20 @@ JSON schema:
 					"needsClarification":   false,
 					"clarificationQuestion": "",
 					"notes":                "This creates the destination folder if needed and moves files into it.",
+					"platform":             "linux",
+					"refused":              false,
+				},
+			},
+			{
+				"request": "add cd.. as an alias to cd .. in bashrc",
+				"response": map[string]any{
+					"command":              "printf '\nalias cd..=\"cd ..\"\n' >> ~/.bashrc",
+					"explanation":          "Appends an alias named cd.. to ~/.bashrc so it expands to 'cd ..'.",
+					"risk":                 "high",
+					"requiresConfirmation": true,
+					"needsClarification":   false,
+					"clarificationQuestion": "",
+					"notes":                "Run 'source ~/.bashrc' or open a new shell afterward to use the alias in new sessions.",
 					"platform":             "linux",
 					"refused":              false,
 				},

@@ -72,10 +72,6 @@ func ValidateSuggestion(s Suggestion) (Suggestion, error) {
 	s.Notes = strings.TrimSpace(s.Notes)
 	s.Platform = strings.TrimSpace(s.Platform)
 
-	if s.Explanation == "" {
-		return Suggestion{}, errors.New("explanation must be a non-empty string")
-	}
-
 	switch s.Risk {
 	case "low", "medium", "high", "critical":
 	default:
@@ -87,6 +83,10 @@ func ValidateSuggestion(s Suggestion) (Suggestion, error) {
 			return Suggestion{}, errors.New("clarificationQuestion is required when needsClarification is true")
 		}
 		return s, nil
+	}
+
+	if s.Explanation == "" {
+		return Suggestion{}, errors.New("explanation must be a non-empty string")
 	}
 
 	if !s.Refused && s.Command == "" {

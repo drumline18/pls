@@ -19,3 +19,20 @@ func TestValidateSuggestionAcceptsSchemaCompliantPayloads(t *testing.T) {
 		t.Fatalf("unexpected command: %s", result.Command)
 	}
 }
+
+func TestValidateSuggestionAllowsClarificationWithoutExplanation(t *testing.T) {
+	result, err := ValidateSuggestion(Suggestion{
+		Command:               "",
+		Explanation:           "",
+		Risk:                  "low",
+		NeedsClarification:    true,
+		ClarificationQuestion: "Do you want this in ~/.bashrc or ~/.bash_aliases?",
+	})
+	if err != nil {
+		t.Fatalf("ValidateSuggestion returned error: %v", err)
+	}
+
+	if !result.NeedsClarification {
+		t.Fatalf("expected clarification result")
+	}
+}
