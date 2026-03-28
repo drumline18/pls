@@ -89,6 +89,14 @@ func run(args []string) int {
 		return 0
 	}
 
+	if len(parsed.RequestParts) == 3 && parsed.RequestParts[0] == "config" && parsed.RequestParts[1] == "local" && parsed.RequestParts[2] == "init" {
+		if err := configinit.RunLocal(parsed.Flags); err != nil {
+			fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+			return 1
+		}
+		return 0
+	}
+
 	if len(parsed.RequestParts) == 2 && parsed.RequestParts[0] == "config" && parsed.RequestParts[1] == "path" {
 		path, err := config.ResolvePath(parsed.Flags.ConfigPath)
 		if err != nil {

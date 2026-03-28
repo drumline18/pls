@@ -17,6 +17,7 @@ Current MVP goals:
 pls doctor
 pls setup
 pls config init
+pls config local init
 pls config show
 pls config path
 pls show me all dotfiles in this directory
@@ -65,9 +66,10 @@ Built-in config commands:
 ```bash
 pls config show
 pls config path
+pls config local init
 ```
 
-`pls setup` and `pls config init` are treated as strict built-in commands. Longer phrases like `pls config init my project` or `pls setup my repo` still go through the normal natural-language path.
+`pls setup`, `pls config init`, and `pls config local init` are treated as strict built-in commands. Longer phrases like `pls config init my project` or `pls setup my repo` still go through the normal natural-language path.
 
 You can print the resolved config path with:
 
@@ -258,16 +260,19 @@ make print-config-path
 
 `pls config init` walks through global provider setup for Ollama or OpenAI, writes the global config file, and can enable yolo mode.
 
+`pls config local init` writes `./pls.json` for the current project and focuses on local overrides like provider/model/host/yolo mode. It never stores API keys locally.
+
 `pls config show` prints the effective config state, including the active global path, any local override, provider/model/host, and yolo mode.
 
 `pls config path` prints the resolved global config path.
 
 Current scope:
-- global config only for the wizard
+- global config wizard for first-run setup
+- project-local wizard for `pls.json` overrides
 - Ollama host/model prompt
-- OpenAI base URL/model/API key prompt
-- optional yolo mode toggle
-- does not modify project-local `pls.json`
+- OpenAI base URL/model/API key prompt for global config only
+- optional yolo mode toggle in both wizards
+- local wizard avoids storing API keys
 
 ## Notes
 

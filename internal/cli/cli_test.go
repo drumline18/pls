@@ -66,6 +66,17 @@ func TestParseArgsLeavesConfigInitAsRequestSequence(t *testing.T) {
 	}
 }
 
+func TestParseArgsLeavesConfigLocalInitAsRequestSequence(t *testing.T) {
+	parsed, err := ParseArgs([]string{"config", "local", "init"})
+	if err != nil {
+		t.Fatalf("ParseArgs returned error: %v", err)
+	}
+
+	if !reflect.DeepEqual(parsed.RequestParts, []string{"config", "local", "init"}) {
+		t.Fatalf("unexpected request parts: %#v", parsed.RequestParts)
+	}
+}
+
 func TestParseArgsLeavesSetupAsRequest(t *testing.T) {
 	parsed, err := ParseArgs([]string{"setup"})
 	if err != nil {
