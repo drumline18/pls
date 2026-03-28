@@ -29,6 +29,8 @@ type Report struct {
 	Host                 string `json:"host,omitempty"`
 	Shell                string `json:"shell,omitempty"`
 	OS                   string `json:"os,omitempty"`
+	SupportTier          string `json:"supportTier,omitempty"`
+	SupportNotes         string `json:"supportNotes,omitempty"`
 	CWD                  string `json:"cwd,omitempty"`
 	ExecutablePath       string `json:"executablePath,omitempty"`
 	InstalledCommandPath string `json:"installedCommandPath,omitempty"`
@@ -59,6 +61,7 @@ func Run(ctx context.Context, flags types.Flags) (Report, error) {
 		report.Shell = runtimeContext.Shell
 		report.OS = runtimeContext.OS
 		report.CWD = runtimeContext.CWD
+		report.SupportTier, report.SupportNotes = supportStatus(runtimeContext.OS, runtimeContext.Shell)
 
 		if localPath, localErr := config.FindLocalConfigPath(runtimeContext.CWD); localErr == nil && localPath != "" {
 			report.LocalConfigPath = localPath
@@ -126,6 +129,12 @@ func Human(report Report) string {
 		"Runtime:",
 		fmt.Sprintf("  os: %s", emptyFallback(report.OS, "unknown")),
 		fmt.Sprintf("  shell: %s", emptyFallback(report.Shell, "unknown")),
+		fmt.Sprintf("  support tier: %s", emptyFallback(report.SupportTier, "unknown")),
+	)
+	if report.SupportNotes != "" {
+		lines = append(lines, fmt.Sprintf("  support notes: %s", report.SupportNotes))
+	}
+	lines = append(lines,
 		fmt.Sprintf("  cwd: %s", emptyFallback(report.CWD, "unknown")),
 		"",
 		"Install:",
@@ -205,4 +214,20 @@ func emptyFallback(value, fallback string) string {
 
 func httpClient() *http.Client {
 	return &http.Client{Timeout: 5 * time.Second}
+}
+
+func supportStatus(osName, shell string) (string, string) {
+	switch osName {
+	case "linux":
+		return "primary", "Linux is the main target and has the strongest normalization coverage right now."
+	case "macos":
+		return "beta", "macOS now has platform-aware prompting, but normalization and command coverage are still thinner than Linux."
+	case "windows":
+		if shell == "powershell" {
+			return "beta", "PowerShell is the intended Windows experience. Expect prompt-aware suggestions, but fewer post-processing rules than Linux."
+		}
+		return "limited", "Windows without PowerShell gets only basic support right now. PowerShell is the preferred shell for this tool."
+	default:
+		return "limited", "This platform has only generic prompt guidance right now."
+	}
 }
