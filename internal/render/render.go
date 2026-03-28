@@ -44,7 +44,7 @@ func Human(result types.Suggestion) string {
 		lines = append(lines, "", "Notes:", fmt.Sprintf("  %s", result.Notes))
 	}
 	if result.RequiresConfirmation {
-		lines = append(lines, "", "Execution:", "  This command should require confirmation in a future execution-enabled version.")
+		lines = append(lines, "", "Execution:", "  This command will ask for confirmation before execution.")
 	}
 
 	return strings.Join(lines, "\n")
