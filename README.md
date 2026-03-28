@@ -18,6 +18,9 @@ pls show me all dotfiles in this directory
 pls find files bigger than 500mb
 pls check if jellyfin is running
 pls prefix all the mp3s with their lengths in seconds
+pls prefix all jpgs with vacation-
+pls replace spaces in all filenames here with underscores
+pls move all srt files into a subtitles folder
 pls --provider openai --model gpt-4.1-mini why is port 3000 busy
 pls --provider ollama --model qwen2.5-coder:7b-instruct-q4_K_M show hidden files here
 pls --json list the 10 biggest files under the current directory
@@ -173,4 +176,5 @@ make print-config-path
 - Safety policy can escalate risky commands for manual review.
 - Style normalization prefers boring direct commands over parsing `ls` output for common listing tasks.
 - More advanced prompts can return concise shell loops for batch file operations when that is the clearest single command.
+- Bulk rename and move commands are treated as high-risk suggestions and should be reviewed before execution.
 - The previous Node prototype is preserved under `legacy/node-prototype/`.

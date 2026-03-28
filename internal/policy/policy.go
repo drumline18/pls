@@ -2,6 +2,7 @@ package policy
 
 import (
 	"regexp"
+	"strings"
 
 	"pls/internal/types"
 )
@@ -22,15 +23,29 @@ var highRiskPatterns = []*regexp.Regexp{
 func Apply(s types.Suggestion) types.Suggestion {
 	for _, pattern := range highRiskPatterns {
 		if pattern.MatchString(s.Command) {
-			if riskRank(s.Risk) < riskRank("high") {
-				s.Risk = "high"
-			}
-			s.RequiresConfirmation = true
-			s.Notes = joinNotes(s.Notes, "Safety policy flagged this command for manual review before any future execution support.")
+			s = escalateHigh(s, "Safety policy flagged this command for manual review before any future execution support.")
 			break
 		}
 	}
 
+	if isFileMutationCommand(s.Command) {
+		s = escalateHigh(s, "This command renames or moves files and should be reviewed before execution.")
+	}
+
+	return s
+}
+
+func isFileMutationCommand(command string) bool {
+	normalized := strings.TrimSpace(command)
+	return strings.Contains(normalized, " mv ") || strings.HasPrefix(normalized, "mv ") || strings.Contains(normalized, "rename ") || strings.Contains(normalized, "mmv ")
+}
+
+func escalateHigh(s types.Suggestion, note string) types.Suggestion {
+	if riskRank(s.Risk) < riskRank("high") {
+		s.Risk = "high"
+	}
+	s.RequiresConfirmation = true
+	s.Notes = joinNotes(s.Notes, note)
 	return s
 }
 
