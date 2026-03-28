@@ -21,6 +21,7 @@ const HelpText = `pls — natural-language shell command suggester
 Usage:
   pls <request>
   pls doctor
+  pls config init
   pls --yes show hidden files here
   pls --no-exec prefix all jpgs with vacation-
   pls --provider openai --model gpt-4.1-mini show hidden files here
@@ -28,6 +29,10 @@ Usage:
   pls --json find files bigger than 500mb
   pls --print-config-path
   pls -- show me files named --json
+
+Built-ins:
+  pls doctor                  Show environment/config/provider health
+  pls config init             Interactive global config setup wizard
 
 Flags:
   --provider <openai|ollama>   LLM provider
@@ -43,7 +48,7 @@ Flags:
   --help, -h                   Show help
 
 Config precedence:
-  flags > environment > config file > built-in defaults
+  flags > environment > local pls.json > global config > built-in defaults
 
 Environment:
   OPENAI_API_KEY               OpenAI API key

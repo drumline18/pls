@@ -11,6 +11,7 @@ import (
 	"pls/internal/app"
 	"pls/internal/cli"
 	"pls/internal/config"
+	"pls/internal/configinit"
 	"pls/internal/doctor"
 	"pls/internal/execute"
 	"pls/internal/render"
@@ -68,6 +69,14 @@ func run(args []string) int {
 		}
 
 		fmt.Fprintln(os.Stdout, doctor.Human(report))
+		return 0
+	}
+
+	if len(parsed.RequestParts) == 2 && parsed.RequestParts[0] == "config" && parsed.RequestParts[1] == "init" {
+		if err := configinit.Run(parsed.Flags); err != nil {
+			fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+			return 1
+		}
 		return 0
 	}
 
