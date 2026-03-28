@@ -12,6 +12,7 @@ import (
 	"pls/internal/cli"
 	"pls/internal/config"
 	"pls/internal/configinit"
+	"pls/internal/configshow"
 	"pls/internal/doctor"
 	"pls/internal/execute"
 	"pls/internal/render"
@@ -72,11 +73,48 @@ func run(args []string) int {
 		return 0
 	}
 
+	if len(parsed.RequestParts) == 1 && parsed.RequestParts[0] == "setup" {
+		if err := configinit.Run(parsed.Flags); err != nil {
+			fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+			return 1
+		}
+		return 0
+	}
+
 	if len(parsed.RequestParts) == 2 && parsed.RequestParts[0] == "config" && parsed.RequestParts[1] == "init" {
 		if err := configinit.Run(parsed.Flags); err != nil {
 			fmt.Fprintf(os.Stderr, "pls: %v\n", err)
 			return 1
 		}
+		return 0
+	}
+
+	if len(parsed.RequestParts) == 2 && parsed.RequestParts[0] == "config" && parsed.RequestParts[1] == "path" {
+		path, err := config.ResolvePath(parsed.Flags.ConfigPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+			return 1
+		}
+		fmt.Fprintln(os.Stdout, path)
+		return 0
+	}
+
+	if len(parsed.RequestParts) == 2 && parsed.RequestParts[0] == "config" && parsed.RequestParts[1] == "show" {
+		report, err := configshow.Run(parsed.Flags)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+			return 1
+		}
+		if parsed.Flags.JSON {
+			payload, err := configshow.JSON(report)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+				return 1
+			}
+			fmt.Fprintln(os.Stdout, string(payload))
+			return 0
+		}
+		fmt.Fprintln(os.Stdout, configshow.Human(report))
 		return 0
 	}
 

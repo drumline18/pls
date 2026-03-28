@@ -21,7 +21,10 @@ const HelpText = `pls — natural-language shell command suggester
 Usage:
   pls <request>
   pls doctor
+  pls setup
   pls config init
+  pls config show
+  pls config path
   pls --yes show hidden files here
   pls --no-exec prefix all jpgs with vacation-
   pls --provider openai --model gpt-4.1-mini show hidden files here
@@ -32,7 +35,10 @@ Usage:
 
 Built-ins:
   pls doctor                  Show environment/config/provider health
+  pls setup                   Friendly alias for pls config init
   pls config init             Interactive global config setup wizard
+  pls config show             Show the effective config and active overrides
+  pls config path             Print the global config path
 
 Flags:
   --provider <openai|ollama>   LLM provider

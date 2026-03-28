@@ -66,6 +66,17 @@ func TestParseArgsLeavesConfigInitAsRequestSequence(t *testing.T) {
 	}
 }
 
+func TestParseArgsLeavesSetupAsRequest(t *testing.T) {
+	parsed, err := ParseArgs([]string{"setup"})
+	if err != nil {
+		t.Fatalf("ParseArgs returned error: %v", err)
+	}
+
+	if !reflect.DeepEqual(parsed.RequestParts, []string{"setup"}) {
+		t.Fatalf("unexpected request parts: %#v", parsed.RequestParts)
+	}
+}
+
 func TestParseArgsSupportsExecutionFlagsBeforeRequest(t *testing.T) {
 	parsed, err := ParseArgs([]string{"--yes", "--no-exec", "show", "hidden", "files"})
 	if err != nil {
