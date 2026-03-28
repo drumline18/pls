@@ -73,19 +73,20 @@ func run(flags types.Flags, in io.Reader, out io.Writer) error {
 		return err
 	}
 	spec := providerInfo(provider)
+	promptExisting := scopedConfigForProvider(existing, provider)
 
 	final := config.FileConfig{Provider: provider}
 	if existing.OpenAIAPIKey != "" {
 		final.OpenAIAPIKey = existing.OpenAIAPIKey
 	}
 
-	host, err := askProviderHost(reader, writer, spec, existing, "")
+	host, err := askProviderHost(reader, writer, spec, promptExisting, "")
 	if err != nil {
 		return err
 	}
 	final.Host = host
 
-	model, err := askProviderModel(reader, writer, spec, existing, host, "")
+	model, err := askProviderModel(reader, writer, spec, promptExisting, host, "")
 	if err != nil {
 		return err
 	}
@@ -352,6 +353,16 @@ func fetchOllamaModels(host string) ([]string, error) {
 	}
 	sort.Strings(models)
 	return models, nil
+}
+
+func scopedConfigForProvider(existing config.FileConfig, provider string) config.FileConfig {
+	existingProvider := normalizeProvider(existing.Provider)
+	targetProvider := normalizeProvider(provider)
+	if existingProvider != "" && existingProvider != targetProvider {
+		existing.Host = ""
+		existing.Model = ""
+	}
+	return existing
 }
 
 func defaultProviderChoice(existing config.FileConfig) string {

@@ -71,14 +71,25 @@ func runLocal(flags types.Flags, in io.Reader, out io.Writer) error {
 		providerChanged = normalizeProvider(provider) != normalizeProvider(current.Provider)
 	}
 	spec := providerInfo(providerForLocal)
+	promptExisting := scopedConfigForProvider(existing, providerForLocal)
+	if providerChanged && normalizeProvider(existing.Provider) == "" {
+		promptExisting.Host = ""
+		promptExisting.Model = ""
+	}
+	currentHostForProvider := ""
+	currentModelForProvider := ""
+	if normalizeProvider(current.Provider) == normalizeProvider(providerForLocal) {
+		currentHostForProvider = current.Host
+		currentModelForProvider = current.Model
+	}
 
-	overrideHostDefault := existing.Host != "" || (providerChanged && spec.DefaultHost != "")
+	overrideHostDefault := promptExisting.Host != "" || (providerChanged && spec.DefaultHost != "")
 	overrideHost, err := askYesNo(reader, writer, "Override host for this project", overrideHostDefault)
 	if err != nil {
 		return err
 	}
 	if overrideHost {
-		hostDefault := firstNonEmpty(existing.Host, current.Host, spec.DefaultHost)
+		hostDefault := firstNonEmpty(promptExisting.Host, currentHostForProvider, spec.DefaultHost)
 		if hostDefault == "" {
 			fmt.Fprintln(writer, "This provider does not need a host override by default.")
 		} else {
@@ -90,14 +101,14 @@ func runLocal(flags types.Flags, in io.Reader, out io.Writer) error {
 		}
 	}
 
-	overrideModelDefault := existing.Model != "" || providerChanged
+	overrideModelDefault := promptExisting.Model != "" || providerChanged
 	overrideModel, err := askYesNo(reader, writer, "Override model for this project", overrideModelDefault)
 	if err != nil {
 		return err
 	}
 	if overrideModel {
-		hostForModel := firstNonEmpty(final.Host, existing.Host, current.Host, spec.DefaultHost)
-		model, err := askProviderModel(reader, writer, spec, existing, hostForModel, current.Model)
+		hostForModel := firstNonEmpty(final.Host, promptExisting.Host, currentHostForProvider, spec.DefaultHost)
+		model, err := askProviderModel(reader, writer, spec, promptExisting, hostForModel, currentModelForProvider)
 		if err != nil {
 			return err
 		}
