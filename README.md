@@ -132,7 +132,13 @@ Currently wired providers:
 - llama.cpp server
 - llamafile server
 
-Right now the setup wizard is still opinionated toward **Ollama** and **OpenAI**. For the other providers, set `provider` + `model` in config or flags and use the provider's normal environment variable for credentials.
+The setup wizard now covers all currently wired providers.
+
+Behavior:
+- the global wizard can set provider/model/host for any supported provider
+- OpenAI can optionally store an API key in global config
+- non-OpenAI hosted providers use their normal environment variable for credentials
+- the local wizard can override provider/model/host/yolo mode, but never stores API keys locally
 
 ### Ollama
 
@@ -334,7 +340,7 @@ GO=~/.local/bin/go1.26 make build
 
 `pls setup` is a friendly alias for `pls config init`.
 
-`pls config init` walks through global provider setup for Ollama or OpenAI, writes the global config file, and can enable yolo mode.
+`pls config init` walks through global provider setup for all supported providers, writes the global config file, and can enable yolo mode.
 
 `pls config local init` writes `./pls.json` for the current project and focuses on local overrides like provider/model/host/yolo mode. It never stores API keys locally.
 
@@ -343,10 +349,12 @@ GO=~/.local/bin/go1.26 make build
 `pls config path` prints the resolved global config path.
 
 Current scope:
-- global config wizard for first-run setup
+- global config wizard for first-run setup across all supported providers
 - project-local wizard for `pls.json` overrides
-- Ollama host/model prompt
-- OpenAI base URL/model/API key prompt for global config only
+- provider-aware host/model prompts
+- Ollama model discovery when the target host is reachable
+- OpenAI API key prompt for global config only
+- environment-variable credential guidance for other hosted providers
 - optional yolo mode toggle in both wizards
 - local wizard avoids storing API keys
 
