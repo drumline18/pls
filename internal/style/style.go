@@ -12,6 +12,8 @@ var directoryOnlyPattern = regexp.MustCompile(`(?i)^ls\b.*\|\s*grep\s+['"]\^d['"
 var fileOnlyPattern = regexp.MustCompile(`(?i)^ls\b.*\|\s*grep\s+-v\s+['"]\^d['"]$`)
 var portPipePattern = regexp.MustCompile(`(?i)^(netstat|ss)\b.*\|\s*grep\b.*$`)
 var portNumberPattern = regexp.MustCompile(`(?i)\bport\s+(\d{1,5})\b`)
+var psGrepPattern = regexp.MustCompile(`(?i)^ps\b.*\|\s*grep\b.*$`)
+var serviceRequestPattern = regexp.MustCompile(`(?i)^(?:check\s+if|is|whether)\s+([a-z0-9_.@-]+)\s+(?:service\s+)?(?:is\s+)?running\b`)
 
 func Normalize(request string, runtimeContext types.RuntimeContext, suggestion types.Suggestion) types.Suggestion {
 	requestLower := strings.ToLower(strings.TrimSpace(request))
@@ -42,6 +44,13 @@ func Normalize(request string, runtimeContext types.RuntimeContext, suggestion t
 		suggestion.Command = replacement
 		suggestion.Explanation = explanation
 		suggestion.Notes = joinNotes(suggestion.Notes, "Style policy normalized this to a direct socket inspection command instead of a grep pipeline.")
+		return suggestion
+	}
+
+	if replacement, explanation, matched := normalizeServiceInspection(requestLower, runtimeContext.OS, command); matched {
+		suggestion.Command = replacement
+		suggestion.Explanation = explanation
+		suggestion.Notes = joinNotes(suggestion.Notes, "Style policy normalized this to a direct service-status check instead of a process-name search.")
 		return suggestion
 	}
 
@@ -96,6 +105,20 @@ func normalizePortInspection(request, osName, command string) (string, string, b
 
 	port := match[1]
 	return "ss -ltnp 'sport = :" + port + "'", "Shows listening sockets bound to port " + port + ", including the owning process when available.", true
+}
+
+func normalizeServiceInspection(request, osName, command string) (string, string, bool) {
+	if osName != "linux" || !(strings.HasPrefix(command, "pgrep ") || psGrepPattern.MatchString(command)) {
+		return "", "", false
+	}
+
+	match := serviceRequestPattern.FindStringSubmatch(request)
+	if len(match) != 2 {
+		return "", "", false
+	}
+
+	service := match[1]
+	return "systemctl is-active " + service, "Checks whether the " + service + " systemd service is active.", true
 }
 
 func isHiddenListingRequest(request string) bool {

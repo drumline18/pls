@@ -46,6 +46,18 @@ func TestNormalizePortInspectionRewritesNetstatGrep(t *testing.T) {
 	}
 }
 
+func TestNormalizeServiceInspectionRewritesPgrep(t *testing.T) {
+	suggestion := Normalize("check if jellyfin is running", types.RuntimeContext{OS: "linux"}, types.Suggestion{
+		Command:     "pgrep -f jellyfin",
+		Explanation: "Checks for a Jellyfin process.",
+		Risk:        "low",
+	})
+
+	if suggestion.Command != "systemctl is-active jellyfin" {
+		t.Fatalf("unexpected command: %s", suggestion.Command)
+	}
+}
+
 func TestNormalizeLeavesUnrelatedCommandsAlone(t *testing.T) {
 	original := types.Suggestion{
 		Command:     "ss -ltnp 'sport = :3000'",
