@@ -105,7 +105,7 @@ func run(args []string) int {
 
 	fmt.Fprintln(os.Stdout, render.Human(result))
 
-	runCommand, exitCode, err := execute.MaybePromptAndRun(result, runtimeContext)
+	runCommand, exitCode, err := execute.MaybePromptAndRun(result, runtimeContext, parsed.Flags)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pls: %v\n", err)
 		return 1

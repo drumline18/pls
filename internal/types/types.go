@@ -14,6 +14,8 @@ type Flags struct {
 	Host            string
 	ConfigPath      string
 	JSON            bool
+	Yes             bool
+	NoExec          bool
 	Help            bool
 	PrintConfigPath bool
 }

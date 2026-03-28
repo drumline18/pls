@@ -24,12 +24,25 @@ func TestShellInvocationHandlesFish(t *testing.T) {
 }
 
 func TestMaybePromptAndRunSkipsNonTTY(t *testing.T) {
-	run, code, err := MaybePromptAndRun(types.Suggestion{Command: "echo hi", Explanation: "x", Risk: "low"}, types.RuntimeContext{IsTTY: false})
+	run, code, err := MaybePromptAndRun(types.Suggestion{Command: "echo hi", Explanation: "x", Risk: "low"}, types.RuntimeContext{IsTTY: false}, types.Flags{})
 	if err != nil {
 		t.Fatalf("MaybePromptAndRun returned error: %v", err)
 	}
 	if run {
 		t.Fatalf("expected command not to run in non-TTY mode")
+	}
+	if code != 0 {
+		t.Fatalf("unexpected exit code: %d", code)
+	}
+}
+
+func TestMaybePromptAndRunSkipsWhenNoExecIsSet(t *testing.T) {
+	run, code, err := MaybePromptAndRun(types.Suggestion{Command: "echo hi", Explanation: "x", Risk: "low"}, types.RuntimeContext{IsTTY: true}, types.Flags{NoExec: true})
+	if err != nil {
+		t.Fatalf("MaybePromptAndRun returned error: %v", err)
+	}
+	if run {
+		t.Fatalf("expected command not to run when --no-exec is set")
 	}
 	if code != 0 {
 		t.Fatalf("unexpected exit code: %d", code)
