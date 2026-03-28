@@ -158,6 +158,7 @@ func TestEnvironmentOverridesLocalYoloMode(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
 	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
+	t.Setenv("PLS_CONFIG", "")
 	t.Setenv("PLS_YOLO_MODE", "false")
 
 	projectRoot := filepath.Join(home, "project")

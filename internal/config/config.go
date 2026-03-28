@@ -10,12 +10,12 @@ import (
 	"pls/internal/types"
 )
 
-type fileConfig struct {
-	Provider     string `json:"provider"`
-	Model        string `json:"model"`
-	Host         string `json:"host"`
-	OpenAIAPIKey string `json:"openaiApiKey"`
-	YoloMode     *bool  `json:"yoloMode"`
+type FileConfig struct {
+	Provider     string `json:"provider,omitempty"`
+	Model        string `json:"model,omitempty"`
+	Host         string `json:"host,omitempty"`
+	OpenAIAPIKey string `json:"openaiApiKey,omitempty"`
+	YoloMode     *bool  `json:"yoloMode,omitempty"`
 }
 
 func Load(flags types.Flags) (types.Config, error) {
@@ -24,7 +24,7 @@ func Load(flags types.Flags) (types.Config, error) {
 		return types.Config{}, err
 	}
 
-	globalCfg, err := loadFileConfig(globalPath, flags.ConfigPath != "" || os.Getenv("PLS_CONFIG") != "")
+	globalCfg, err := ReadFile(globalPath, flags.ConfigPath != "" || os.Getenv("PLS_CONFIG") != "")
 	if err != nil {
 		return types.Config{}, err
 	}
@@ -39,7 +39,7 @@ func Load(flags types.Flags) (types.Config, error) {
 		return types.Config{}, err
 	}
 
-	localCfg, err := loadOptionalFileConfig(localPath)
+	localCfg, err := readOptionalFile(localPath)
 	if err != nil {
 		return types.Config{}, err
 	}
@@ -70,15 +70,15 @@ func Load(flags types.Flags) (types.Config, error) {
 	}
 
 	return types.Config{
-		Provider:       provider,
-		Model:          model,
-		Host:           host,
-		ConfigPath:     globalPath,
+		Provider:        provider,
+		Model:           model,
+		Host:            host,
+		ConfigPath:      globalPath,
 		LocalConfigPath: localPath,
-		YoloMode:       yoloMode,
-		YoloSource:     yoloSource,
-		OutputJSON:     flags.JSON,
-		OpenAIAPIKey:   openAIAPIKey,
+		YoloMode:        yoloMode,
+		YoloSource:      yoloSource,
+		OutputJSON:      flags.JSON,
+		OpenAIAPIKey:    openAIAPIKey,
 	}, nil
 }
 
@@ -120,6 +120,39 @@ func FindLocalConfigPath(startDir string) (string, error) {
 		}
 		dir = parent
 	}
+}
+
+func ReadFile(path string, required bool) (FileConfig, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) && !required {
+			return FileConfig{}, nil
+		}
+		return FileConfig{}, err
+	}
+
+	var cfg FileConfig
+	decoder := json.NewDecoder(strings.NewReader(string(data)))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&cfg); err != nil {
+		return FileConfig{}, fmt.Errorf("invalid config file %s: %w", path, err)
+	}
+
+	return cfg, nil
+}
+
+func WriteFile(path string, cfg FileConfig) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+
+	content, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return err
+	}
+	content = append(content, '\n')
+
+	return os.WriteFile(path, content, 0o600)
 }
 
 func detectDefaultProvider(openAIAPIKey, localProvider, globalProvider string) string {
@@ -166,7 +199,7 @@ func providerHostEnv(provider string) string {
 	}
 }
 
-func resolveYoloMode(localCfg, globalCfg fileConfig) (bool, string, error) {
+func resolveYoloMode(localCfg, globalCfg FileConfig) (bool, string, error) {
 	if value, ok, err := envBool("PLS_YOLO_MODE"); err != nil {
 		return false, "", err
 	} else if ok {
@@ -198,30 +231,11 @@ func envBool(name string) (bool, bool, error) {
 	}
 }
 
-func loadOptionalFileConfig(path string) (fileConfig, error) {
+func readOptionalFile(path string) (FileConfig, error) {
 	if path == "" {
-		return fileConfig{}, nil
+		return FileConfig{}, nil
 	}
-	return loadFileConfig(path, false)
-}
-
-func loadFileConfig(path string, required bool) (fileConfig, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		if os.IsNotExist(err) && !required {
-			return fileConfig{}, nil
-		}
-		return fileConfig{}, err
-	}
-
-	var cfg fileConfig
-	decoder := json.NewDecoder(strings.NewReader(string(data)))
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(&cfg); err != nil {
-		return fileConfig{}, fmt.Errorf("invalid config file %s: %w", path, err)
-	}
-
-	return cfg, nil
+	return ReadFile(path, false)
 }
 
 func expandHome(path string) (string, error) {

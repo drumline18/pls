@@ -15,6 +15,7 @@ Current MVP goals:
 
 ```bash
 pls doctor
+pls config init
 pls show me all dotfiles in this directory
 pls --yes show hidden files here
 pls --no-exec prefix all jpgs with vacation-
@@ -47,6 +48,14 @@ Default path:
 ```bash
 ~/.config/pls/config.json
 ```
+
+First-time setup wizard:
+
+```bash
+pls config init
+```
+
+`pls config init` is treated as a strict built-in command. Longer phrases like `pls config init my project` still go through the normal natural-language path.
 
 You can print the resolved config path with:
 
@@ -230,6 +239,17 @@ make test
 make build
 make print-config-path
 ```
+
+## Setup wizard
+
+`pls config init` walks through global provider setup for Ollama or OpenAI, writes the global config file, and can enable yolo mode.
+
+Current scope:
+- global config only
+- Ollama host/model prompt
+- OpenAI base URL/model/API key prompt
+- optional yolo mode toggle
+- does not modify project-local `pls.json`
 
 ## Notes
 

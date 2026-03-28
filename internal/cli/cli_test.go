@@ -55,6 +55,17 @@ func TestParseArgsLeavesDoctorAsRequest(t *testing.T) {
 	}
 }
 
+func TestParseArgsLeavesConfigInitAsRequestSequence(t *testing.T) {
+	parsed, err := ParseArgs([]string{"config", "init"})
+	if err != nil {
+		t.Fatalf("ParseArgs returned error: %v", err)
+	}
+
+	if !reflect.DeepEqual(parsed.RequestParts, []string{"config", "init"}) {
+		t.Fatalf("unexpected request parts: %#v", parsed.RequestParts)
+	}
+}
+
 func TestParseArgsSupportsExecutionFlagsBeforeRequest(t *testing.T) {
 	parsed, err := ParseArgs([]string{"--yes", "--no-exec", "show", "hidden", "files"})
 	if err != nil {
