@@ -27,12 +27,15 @@ type ParsedArgs struct {
 }
 
 type Config struct {
-	Provider     string
-	Model        string
-	Host         string
-	ConfigPath   string
-	OutputJSON   bool
-	OpenAIAPIKey string
+	Provider        string
+	Model           string
+	Host            string
+	ConfigPath      string
+	LocalConfigPath string
+	YoloMode        bool
+	YoloSource      string
+	OutputJSON      bool
+	OpenAIAPIKey    string
 }
 
 type RuntimeContext struct {

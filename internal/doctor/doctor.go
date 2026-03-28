@@ -19,6 +19,10 @@ type Report struct {
 	OverallStatus        string `json:"overallStatus"`
 	ConfigPath           string `json:"configPath"`
 	ConfigExists         bool   `json:"configExists"`
+	LocalConfigPath      string `json:"localConfigPath,omitempty"`
+	LocalConfigExists    bool   `json:"localConfigExists"`
+	YoloMode             bool   `json:"yoloMode"`
+	YoloSource           string `json:"yoloSource,omitempty"`
 	ConfigError          string `json:"configError,omitempty"`
 	Provider             string `json:"provider,omitempty"`
 	Model                string `json:"model,omitempty"`
@@ -55,6 +59,13 @@ func Run(ctx context.Context, flags types.Flags) (Report, error) {
 		report.Shell = runtimeContext.Shell
 		report.OS = runtimeContext.OS
 		report.CWD = runtimeContext.CWD
+
+		if localPath, localErr := config.FindLocalConfigPath(runtimeContext.CWD); localErr == nil && localPath != "" {
+			report.LocalConfigPath = localPath
+			report.LocalConfigExists = true
+		} else if localErr != nil {
+			report.ConfigError = localErr.Error()
+		}
 	}
 
 	if exePath, exeErr := os.Executable(); exeErr == nil {
@@ -75,6 +86,12 @@ func Run(ctx context.Context, flags types.Flags) (Report, error) {
 	report.Provider = cfg.Provider
 	report.Model = cfg.Model
 	report.Host = cfg.Host
+	report.YoloMode = cfg.YoloMode
+	report.YoloSource = cfg.YoloSource
+	if cfg.LocalConfigPath != "" {
+		report.LocalConfigPath = cfg.LocalConfigPath
+		report.LocalConfigExists = true
+	}
 
 	status, message := checkProvider(ctx, cfg)
 	report.ProviderStatus = status
@@ -92,8 +109,12 @@ func Human(report Report) string {
 		fmt.Sprintf("  overall: %s", report.OverallStatus),
 		"",
 		"Config:",
-		fmt.Sprintf("  path: %s", report.ConfigPath),
-		fmt.Sprintf("  exists: %s", yesNo(report.ConfigExists)),
+		fmt.Sprintf("  global path: %s", report.ConfigPath),
+		fmt.Sprintf("  global exists: %s", yesNo(report.ConfigExists)),
+		fmt.Sprintf("  local override: %s", emptyFallback(report.LocalConfigPath, "none")),
+		fmt.Sprintf("  local exists: %s", yesNo(report.LocalConfigExists)),
+		fmt.Sprintf("  yolo mode: %s", yesNo(report.YoloMode)),
+		fmt.Sprintf("  yolo source: %s", emptyFallback(report.YoloSource, "default")),
 	}
 
 	if report.ConfigError != "" {
@@ -185,4 +206,3 @@ func emptyFallback(value, fallback string) string {
 func httpClient() *http.Client {
 	return &http.Client{Timeout: 5 * time.Second}
 }
-

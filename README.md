@@ -58,18 +58,29 @@ export PLS_CONFIG=/path/to/config.json
 Config precedence is:
 
 ```text
-flags > environment > config file > built-in defaults
+flags > environment > local pls.json > global config > built-in defaults
 ```
 
-Example config:
+Global config example (`~/.config/pls/config.json`):
 
 ```json
 {
   "provider": "ollama",
   "model": "qwen2.5-coder:7b-instruct-q4_K_M",
-  "host": "http://192.168.2.166:11434"
+  "host": "http://192.168.2.166:11434",
+  "yoloMode": false
 }
 ```
+
+Local override example (`pls.json` in a project directory):
+
+```json
+{
+  "yoloMode": true
+}
+```
+
+`pls` looks for `pls.json` in the current directory, then walks upward until it finds one.
 
 A copyable example also lives at `examples/config.example.json`.
 
@@ -100,6 +111,16 @@ export OPENAI_API_KEY=your_key_here
 export PLS_PROVIDER=openai
 export PLS_MODEL=gpt-4.1-mini
 ```
+
+### Execution / yolo mode
+
+Optional environment override:
+
+```bash
+export PLS_YOLO_MODE=true
+```
+
+Accepted values are: `true`, `false`, `yes`, `no`, `on`, `off`, `1`, `0`.
 
 ## Build
 
@@ -166,6 +187,8 @@ pls -- show me files named --json
 
 Behavior:
 - `--yes` auto-runs low/medium-risk commands without prompting
+- `yoloMode: true` acts like a config-backed `--yes`
+- `PLS_YOLO_MODE=true` can override yolo mode from the environment
 - high-risk commands still ask for confirmation
 - `--no-exec` forces suggestion-only behavior even in a TTY
 - in non-interactive mode and `--json` mode, `pls` stays suggestion-only
@@ -179,8 +202,9 @@ pls doctor
 ```
 
 That checks things like:
-- resolved config path
-- whether the config file exists
+- resolved global config path
+- whether a local `pls.json` override is active
+- whether yolo mode is enabled and where it came from
 - current runtime OS/shell/cwd
 - whether `pls` is in `PATH`
 - provider basics and a lightweight health check

@@ -105,7 +105,12 @@ func run(args []string) int {
 
 	fmt.Fprintln(os.Stdout, render.Human(result))
 
-	runCommand, exitCode, err := execute.MaybePromptAndRun(result, runtimeContext, parsed.Flags)
+	executionFlags := parsed.Flags
+	if cfg.YoloMode {
+		executionFlags.Yes = true
+	}
+
+	runCommand, exitCode, err := execute.MaybePromptAndRun(result, runtimeContext, executionFlags)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pls: %v\n", err)
 		return 1
