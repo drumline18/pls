@@ -37,6 +37,7 @@ type RuntimeContext struct {
 	CWD           string `json:"cwd"`
 	OS            string `json:"os"`
 	Shell         string `json:"shell"`
+	ShellPath     string `json:"shellPath,omitempty"`
 	HomeDirectory string `json:"homeDirectory"`
 	IsTTY         bool   `json:"isTTY"`
 }
