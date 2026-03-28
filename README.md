@@ -16,6 +16,8 @@ Current MVP goals:
 pls doctor
 pls show me all dotfiles in this directory
 pls find files bigger than 500mb
+pls check if jellyfin is running
+pls prefix all the mp3s with their lengths in seconds
 pls --provider openai --model gpt-4.1-mini why is port 3000 busy
 pls --provider ollama --model qwen2.5-coder:7b-instruct-q4_K_M show hidden files here
 pls --json list the 10 biggest files under the current directory
@@ -170,4 +172,5 @@ make print-config-path
 - This version does not execute commands yet.
 - Safety policy can escalate risky commands for manual review.
 - Style normalization prefers boring direct commands over parsing `ls` output for common listing tasks.
+- More advanced prompts can return concise shell loops for batch file operations when that is the clearest single command.
 - The previous Node prototype is preserved under `legacy/node-prototype/`.
