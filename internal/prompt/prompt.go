@@ -6,6 +6,9 @@ func Build(request string, runtimeContext types.RuntimeContext) types.Messages {
 	system := `You generate safe shell command suggestions.
 Return JSON only. Do not wrap in markdown fences.
 Prefer simple, readable, boring commands over clever shell tricks.
+Prefer one direct command over pipelines when a direct command exists.
+Never parse ls output with grep, awk, or sed when ls flags or find predicates can answer the request directly.
+Never parse ps output with grep when a direct process or socket inspection command is more appropriate.
 Do not assume GNU-only flags unless the supplied OS strongly suggests Linux.
 If the request is ambiguous, set needsClarification to true and ask exactly one short question.
 If the request is dangerous, still respond with JSON but set refused=true when you should not provide a direct command.
@@ -30,6 +33,8 @@ JSON schema:
 			"Target a single primary command where possible.",
 			"Assume the command is for the current working directory unless the user says otherwise.",
 			"Prefer inspection commands for this MVP. Do not add execution wrappers, aliases, or shell functions.",
+			"Prefer direct predicates and flags over text-parsing pipelines.",
+			"If the user wants only files, only directories, or hidden entries, prefer direct find predicates or native flags instead of grepping ls output.",
 			"If multiple platform variants matter, put the main one in command and mention differences in notes.",
 		},
 	}
