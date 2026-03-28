@@ -11,8 +11,8 @@ import (
 	"pls/internal/app"
 	"pls/internal/cli"
 	"pls/internal/config"
-	runtimeinfo "pls/internal/runtimeinfo"
 	"pls/internal/render"
+	runtimeinfo "pls/internal/runtimeinfo"
 )
 
 func main() {
@@ -25,6 +25,16 @@ func run(args []string) int {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pls: %v\n", err)
 		return 1
+	}
+
+	if parsed.Flags.PrintConfigPath {
+		path, err := config.ResolvePath(parsed.Flags.ConfigPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+			return 1
+		}
+		fmt.Fprintln(os.Stdout, path)
+		return 0
 	}
 
 	if parsed.Help || len(parsed.RequestParts) == 0 {
