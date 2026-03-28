@@ -200,6 +200,25 @@ export PLS_YOLO_MODE=true
 
 Accepted values are: `true`, `false`, `yes`, `no`, `on`, `off`, `1`, `0`.
 
+## Toolchain
+
+`pls` currently targets **Go 1.25+** because of the provider stack behind `any-llm-go`.
+
+If your default `go` is older, either use a newer Go directly:
+
+```bash
+~/.local/bin/go1.26 test ./...
+~/.local/bin/go1.26 build -o bin/pls ./cmd/pls
+```
+
+or point the Makefile at it:
+
+```bash
+cd pls
+GO=~/.local/bin/go1.26 make test
+GO=~/.local/bin/go1.26 make build
+```
+
 ## Build
 
 ```bash
@@ -238,6 +257,12 @@ Alternative:
 
 ```bash
 GOBIN=$HOME/.local/bin go install ./cmd/pls
+```
+
+If you are using a non-default Go binary, the same install works with that toolchain too:
+
+```bash
+GOBIN=$HOME/.local/bin ~/.local/bin/go1.26 install ./cmd/pls
 ```
 
 ## Run
@@ -296,6 +321,13 @@ It also opens with a bad joke, because `pls doctor` kind of deserves one.
 make test
 make build
 make print-config-path
+```
+
+If your default Go is too old:
+
+```bash
+GO=~/.local/bin/go1.26 make test
+GO=~/.local/bin/go1.26 make build
 ```
 
 ## Setup and config commands
