@@ -59,56 +59,45 @@ func runLocal(flags types.Flags, in io.Reader, out io.Writer) error {
 		return err
 	}
 	providerForLocal := current.Provider
+	providerChanged := false
 	if overrideProvider {
-		providerDefault := firstNonEmpty(existing.Provider, current.Provider)
-		provider, err := askChoice(reader, writer, "Project provider", []string{"ollama", "openai"}, providerDefault)
+		providerDefault := firstNonEmpty(normalizeProvider(existing.Provider), normalizeProvider(current.Provider))
+		provider, err := askProviderChoice(reader, writer, providerDefault)
 		if err != nil {
 			return err
 		}
 		final.Provider = provider
 		providerForLocal = provider
+		providerChanged = normalizeProvider(provider) != normalizeProvider(current.Provider)
 	}
+	spec := providerInfo(providerForLocal)
 
-	overrideHost, err := askYesNo(reader, writer, "Override host for this project", existing.Host != "")
+	overrideHostDefault := existing.Host != "" || (providerChanged && spec.DefaultHost != "")
+	overrideHost, err := askYesNo(reader, writer, "Override host for this project", overrideHostDefault)
 	if err != nil {
 		return err
 	}
 	if overrideHost {
-		hostDefault := firstNonEmpty(existing.Host, current.Host, defaultHostForProvider(providerForLocal))
-		host, err := askLine(reader, writer, "Project host", hostDefault)
-		if err != nil {
-			return err
+		hostDefault := firstNonEmpty(existing.Host, current.Host, spec.DefaultHost)
+		if hostDefault == "" {
+			fmt.Fprintln(writer, "This provider does not need a host override by default.")
+		} else {
+			host, err := askLine(reader, writer, firstNonEmpty(spec.HostLabel, "Project host"), hostDefault)
+			if err != nil {
+				return err
+			}
+			final.Host = host
 		}
-		final.Host = host
 	}
 
-	overrideModel, err := askYesNo(reader, writer, "Override model for this project", existing.Model != "")
+	overrideModelDefault := existing.Model != "" || providerChanged
+	overrideModel, err := askYesNo(reader, writer, "Override model for this project", overrideModelDefault)
 	if err != nil {
 		return err
 	}
 	if overrideModel {
-		hostForModel := firstNonEmpty(final.Host, existing.Host, current.Host, defaultHostForProvider(providerForLocal))
-		modelDefault := firstNonEmpty(existing.Model, current.Model, defaultModelForProvider(providerForLocal))
-		if providerForLocal == "ollama" {
-			models, modelFetchErr := fetchOllamaModels(hostForModel)
-			if modelFetchErr == nil && len(models) > 0 {
-				fmt.Fprintln(writer)
-				fmt.Fprintln(writer, "Detected Ollama models:")
-				for _, model := range models {
-					fmt.Fprintf(writer, "  - %s\n", model)
-				}
-				writer.Flush()
-				if existing.Model == "" && current.Provider != "ollama" {
-					modelDefault = models[0]
-				}
-			} else if modelFetchErr != nil {
-				fmt.Fprintln(writer)
-				fmt.Fprintf(writer, "Could not list Ollama models from %s: %v\n", hostForModel, modelFetchErr)
-				fmt.Fprintln(writer, "You can still enter a model manually.")
-				writer.Flush()
-			}
-		}
-		model, err := askLine(reader, writer, "Project model", modelDefault)
+		hostForModel := firstNonEmpty(final.Host, existing.Host, current.Host, spec.DefaultHost)
+		model, err := askProviderModel(reader, writer, spec, existing, hostForModel, current.Model)
 		if err != nil {
 			return err
 		}
@@ -134,7 +123,10 @@ func runLocal(flags types.Flags, in io.Reader, out io.Writer) error {
 	fmt.Fprintf(writer, "  host: %s\n", localValueOrInherit(final.Host))
 	fmt.Fprintf(writer, "  model: %s\n", localValueOrInherit(final.Model))
 	fmt.Fprintf(writer, "  yoloMode: %s\n", triStateLabel(final.YoloMode))
-	fmt.Fprintln(writer, "  openaiApiKey: [never stored in local config]")
+	fmt.Fprintln(writer, "  credentials: never stored in local config; inherit from environment/global config")
+	if len(spec.CredentialEnvs) > 0 {
+		fmt.Fprintf(writer, "  credential envs: %s\n", strings.Join(spec.CredentialEnvs, " / "))
+	}
 	writer.Flush()
 
 	if !hasConfig(final) {
@@ -179,17 +171,11 @@ func runLocal(flags types.Flags, in io.Reader, out io.Writer) error {
 }
 
 func defaultHostForProvider(provider string) string {
-	if provider == "openai" {
-		return defaultOpenAIHost
-	}
-	return defaultOllamaHost
+	return providerInfo(provider).DefaultHost
 }
 
 func defaultModelForProvider(provider string) string {
-	if provider == "openai" {
-		return defaultOpenAIModel
-	}
-	return defaultOllamaModel
+	return providerInfo(provider).DefaultModel
 }
 
 func triStateDefault(value *bool) string {
