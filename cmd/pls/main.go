@@ -1,0 +1,72 @@
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"os"
+	"strings"
+	"time"
+
+	"pls/internal/app"
+	"pls/internal/cli"
+	"pls/internal/config"
+	runtimeinfo "pls/internal/runtimeinfo"
+	"pls/internal/render"
+)
+
+func main() {
+	exitCode := run(os.Args[1:])
+	os.Exit(exitCode)
+}
+
+func run(args []string) int {
+	parsed, err := cli.ParseArgs(args)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+		return 1
+	}
+
+	if parsed.Help || len(parsed.RequestParts) == 0 {
+		fmt.Fprint(os.Stdout, cli.HelpText)
+		if len(parsed.RequestParts) == 0 && !parsed.Help {
+			return 1
+		}
+		return 0
+	}
+
+	cfg, err := config.Load(parsed.Flags)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+		return 1
+	}
+
+	runtimeContext, err := runtimeinfo.Get(parsed.Flags.Shell, parsed.Flags.OS)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+		return 1
+	}
+
+	request := strings.TrimSpace(strings.Join(parsed.RequestParts, " "))
+	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
+	defer cancel()
+
+	result, err := app.GenerateSuggestion(ctx, request, runtimeContext, cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+		return 1
+	}
+
+	if cfg.OutputJSON {
+		encoder := json.NewEncoder(os.Stdout)
+		encoder.SetIndent("", "  ")
+		if err := encoder.Encode(result); err != nil {
+			fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+			return 1
+		}
+		return 0
+	}
+
+	fmt.Fprintln(os.Stdout, render.Human(result))
+	return 0
+}

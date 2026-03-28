@@ -1,0 +1,60 @@
+package policy
+
+import (
+	"regexp"
+
+	"pls/internal/types"
+)
+
+var highRiskPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`(?i)\bsudo\b`),
+	regexp.MustCompile(`(?i)\brm\b\s+(-[a-zA-Z]*[rf][a-zA-Z]*|--recursive|--force)`),
+	regexp.MustCompile(`(?i)\bdd\b`),
+	regexp.MustCompile(`(?i)\bmkfs\b`),
+	regexp.MustCompile(`(?i)\bshutdown\b`),
+	regexp.MustCompile(`(?i)\breboot\b`),
+	regexp.MustCompile(`(?i)\bpoweroff\b`),
+	regexp.MustCompile(`(?i)curl\s+[^|\n]+\|\s*(sh|bash|zsh)`),
+	regexp.MustCompile(`(?i)wget\s+[^|\n]+\|\s*(sh|bash|zsh)`),
+	regexp.MustCompile(`>\s*/dev/`),
+}
+
+func Apply(s types.Suggestion) types.Suggestion {
+	for _, pattern := range highRiskPatterns {
+		if pattern.MatchString(s.Command) {
+			if riskRank(s.Risk) < riskRank("high") {
+				s.Risk = "high"
+			}
+			s.RequiresConfirmation = true
+			s.Notes = joinNotes(s.Notes, "Safety policy flagged this command for manual review before any future execution support.")
+			break
+		}
+	}
+
+	return s
+}
+
+func joinNotes(existing, extra string) string {
+	if existing == "" {
+		return extra
+	}
+	if extra == "" {
+		return existing
+	}
+	return existing + " " + extra
+}
+
+func riskRank(risk string) int {
+	switch risk {
+	case "low":
+		return 1
+	case "medium":
+		return 2
+	case "high":
+		return 3
+	case "critical":
+		return 4
+	default:
+		return 0
+	}
+}
