@@ -6,6 +6,7 @@ import (
 	"pls/internal/policy"
 	"pls/internal/prompt"
 	"pls/internal/providers"
+	"pls/internal/style"
 	"pls/internal/types"
 )
 
@@ -21,5 +22,6 @@ func GenerateSuggestion(ctx context.Context, request string, runtimeContext type
 		return types.Suggestion{}, err
 	}
 
-	return policy.Apply(validated), nil
+	normalized := style.Normalize(request, runtimeContext, validated)
+	return policy.Apply(normalized), nil
 }

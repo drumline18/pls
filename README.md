@@ -169,4 +169,5 @@ make print-config-path
 - Everything after `pls` is treated as the request unless parsed as a known flag.
 - This version does not execute commands yet.
 - Safety policy can escalate risky commands for manual review.
+- Style normalization prefers boring direct commands over parsing `ls` output for common listing tasks.
 - The previous Node prototype is preserved under `legacy/node-prototype/`.
