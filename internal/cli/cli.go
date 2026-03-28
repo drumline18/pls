@@ -21,15 +21,20 @@ const HelpText = `pls — natural-language shell command suggester
 Usage:
   pls <request>
   pls doctor
+  pls --yes show hidden files here
+  pls --no-exec prefix all jpgs with vacation-
   pls --provider openai --model gpt-4.1-mini show hidden files here
   pls --provider ollama --model qwen2.5-coder:7b-instruct-q4_K_M list large files in this directory
   pls --json find files bigger than 500mb
   pls --print-config-path
+  pls -- show me files named --json
 
 Flags:
   --provider <openai|ollama>   LLM provider
   --model <name>               Model name to use
   --json                       Emit JSON only
+  --yes                        Auto-run low/medium-risk commands without prompting
+  --no-exec                    Never execute; suggestion only even in a TTY
   --shell <name>               Override shell detection
   --os <name>                  Override OS detection
   --host <url>                 Override provider host/base URL
@@ -53,30 +58,44 @@ Environment:
 
 func ParseArgs(args []string) (types.ParsedArgs, error) {
 	parsed := types.ParsedArgs{}
+	parsingFlags := true
 
 	for index := 0; index < len(args); index++ {
 		arg := args[index]
 
-		switch arg {
-		case "--help", "-h":
-			parsed.Help = true
-			parsed.Flags.Help = true
-			continue
-		case "--json":
-			parsed.Flags.JSON = true
-			continue
-		case "--print-config-path":
-			parsed.Flags.PrintConfigPath = true
-			continue
-		}
-
-		if setter, ok := flagsWithValues[arg]; ok {
-			if index+1 >= len(args) || strings.HasPrefix(args[index+1], "--") {
-				return types.ParsedArgs{}, fmt.Errorf("missing value for %s", arg)
+		if parsingFlags {
+			switch arg {
+			case "--":
+				parsingFlags = false
+				continue
+			case "--help", "-h":
+				parsed.Help = true
+				parsed.Flags.Help = true
+				continue
+			case "--json":
+				parsed.Flags.JSON = true
+				continue
+			case "--yes":
+				parsed.Flags.Yes = true
+				continue
+			case "--no-exec":
+				parsed.Flags.NoExec = true
+				continue
+			case "--print-config-path":
+				parsed.Flags.PrintConfigPath = true
+				continue
 			}
-			setter(&parsed.Flags, args[index+1])
-			index++
-			continue
+
+			if setter, ok := flagsWithValues[arg]; ok {
+				if index+1 >= len(args) || strings.HasPrefix(args[index+1], "--") {
+					return types.ParsedArgs{}, fmt.Errorf("missing value for %s", arg)
+				}
+				setter(&parsed.Flags, args[index+1])
+				index++
+				continue
+			}
+
+			parsingFlags = false
 		}
 
 		parsed.RequestParts = append(parsed.RequestParts, arg)

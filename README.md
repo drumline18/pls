@@ -15,6 +15,8 @@ Current MVP goals:
 ```bash
 pls doctor
 pls show me all dotfiles in this directory
+pls --yes show hidden files here
+pls --no-exec prefix all jpgs with vacation-
 pls find files bigger than 500mb
 pls check if jellyfin is running
 pls prefix all the mp3s with their lengths in seconds
@@ -24,6 +26,7 @@ pls move all srt files into a subtitles folder
 pls --provider openai --model gpt-4.1-mini why is port 3000 busy
 pls --provider ollama --model qwen2.5-coder:7b-instruct-q4_K_M show hidden files here
 pls --json list the 10 biggest files under the current directory
+pls -- show me files named --json
 ```
 
 ## Config file
@@ -150,7 +153,22 @@ In an interactive terminal, `pls` now prompts before execution:
 Run it? [y/N]
 ```
 
-If you answer `y`, it runs the suggested command through your shell. In non-interactive mode and `--json` mode, it stays suggestion-only.
+Execution flags fit cleanly with no quotes because `pls` only parses **leading** known flags. As soon as the natural-language request starts, the rest is treated as request text.
+
+Examples:
+
+```bash
+pls --yes show hidden files here
+pls --no-exec prefix all jpgs with vacation-
+pls show me files named --json
+pls -- show me files named --json
+```
+
+Behavior:
+- `--yes` auto-runs low/medium-risk commands without prompting
+- high-risk commands still ask for confirmation
+- `--no-exec` forces suggestion-only behavior even in a TTY
+- in non-interactive mode and `--json` mode, `pls` stays suggestion-only
 
 ## Doctor
 
@@ -181,6 +199,8 @@ make print-config-path
 
 - Everything after `pls` is treated as the request unless parsed as a known flag.
 - In a real TTY, `pls` can prompt with `Run it? [y/N]` and execute the suggested command through your shell.
+- `--yes` auto-runs only low/medium-risk suggestions; high-risk ones still require confirmation.
+- `--no-exec` forces suggestion-only behavior.
 - Safety policy can escalate risky commands for manual review.
 - Style normalization prefers boring direct commands over parsing `ls` output for common listing tasks.
 - More advanced prompts can return concise shell loops for batch file operations when that is the clearest single command.

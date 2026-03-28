@@ -12,8 +12,18 @@ import (
 	"pls/internal/types"
 )
 
-func MaybePromptAndRun(result types.Suggestion, runtimeContext types.RuntimeContext) (bool, int, error) {
-	if !canPrompt(runtimeContext) || result.Refused || result.NeedsClarification || strings.TrimSpace(result.Command) == "" {
+func MaybePromptAndRun(result types.Suggestion, runtimeContext types.RuntimeContext, flags types.Flags) (bool, int, error) {
+	if flags.NoExec || result.Refused || result.NeedsClarification || strings.TrimSpace(result.Command) == "" {
+		return false, 0, nil
+	}
+
+	if flags.Yes && !result.RequiresConfirmation && !isHighRisk(result.Risk) {
+		fmt.Fprint(os.Stdout, "\nRunning without prompt because --yes was set.\n\n")
+		exitCode, err := runCommand(result.Command, runtimeContext)
+		return true, exitCode, err
+	}
+
+	if !canPrompt(runtimeContext) {
 		return false, 0, nil
 	}
 
