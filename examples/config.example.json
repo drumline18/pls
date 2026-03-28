@@ -1,0 +1,5 @@
+{
+  "provider": "ollama",
+  "model": "qwen2.5-coder:7b-instruct-q4_K_M",
+  "host": "http://192.168.2.166:11434"
+}

@@ -7,13 +7,15 @@ import (
 )
 
 type Flags struct {
-	Provider string
-	Model    string
-	Shell    string
-	OS       string
-	Host     string
-	JSON     bool
-	Help     bool
+	Provider        string
+	Model           string
+	Shell           string
+	OS              string
+	Host            string
+	ConfigPath      string
+	JSON            bool
+	Help            bool
+	PrintConfigPath bool
 }
 
 type ParsedArgs struct {
@@ -26,6 +28,7 @@ type Config struct {
 	Provider     string
 	Model        string
 	Host         string
+	ConfigPath   string
 	OutputJSON   bool
 	OpenAIAPIKey string
 }

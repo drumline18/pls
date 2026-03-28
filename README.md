@@ -20,6 +20,50 @@ pls --provider ollama --model qwen2.5-coder:7b-instruct-q4_K_M show hidden files
 pls --json list the 10 biggest files under the current directory
 ```
 
+## Config file
+
+Default path:
+
+```bash
+~/.config/pls/config.json
+```
+
+You can print the resolved config path with:
+
+```bash
+pls --print-config-path
+```
+
+You can override the config path with either:
+
+```bash
+pls --config /path/to/config.json ...
+```
+
+or:
+
+```bash
+export PLS_CONFIG=/path/to/config.json
+```
+
+Config precedence is:
+
+```text
+flags > environment > config file > built-in defaults
+```
+
+Example config:
+
+```json
+{
+  "provider": "ollama",
+  "model": "qwen2.5-coder:7b-instruct-q4_K_M",
+  "host": "http://192.168.2.166:11434"
+}
+```
+
+A copyable example also lives at `examples/config.example.json`.
+
 ## Provider configuration
 
 ### Ollama
@@ -33,6 +77,7 @@ Environment variables:
 
 ```bash
 export OLLAMA_HOST=http://127.0.0.1:11434
+export PLS_OLLAMA_HOST=http://127.0.0.1:11434
 export PLS_PROVIDER=ollama
 export PLS_MODEL=qwen2.5-coder:7b-instruct-q4_K_M
 ```
@@ -51,19 +96,54 @@ export PLS_MODEL=gpt-4.1-mini
 
 ```bash
 cd pls
+make build
+```
+
+Or directly:
+
+```bash
 go build -o bin/pls ./cmd/pls
+```
+
+## Install into PATH
+
+Recommended local install:
+
+```bash
+cd pls
+make install
+```
+
+That installs `pls` to:
+
+```bash
+~/.local/bin/pls
+```
+
+If `~/.local/bin` is not already in your PATH, add this to your shell rc file:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Alternative:
+
+```bash
+GOBIN=$HOME/.local/bin go install ./cmd/pls
 ```
 
 ## Run
 
 ```bash
-./bin/pls show hidden files here
+pls show hidden files here
 ```
 
-## Install into PATH
+## Development
 
 ```bash
-go install ./cmd/pls
+make test
+make build
+make print-config-path
 ```
 
 ## Notes
