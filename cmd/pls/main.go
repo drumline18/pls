@@ -11,6 +11,7 @@ import (
 	"pls/internal/app"
 	"pls/internal/cli"
 	"pls/internal/config"
+	"pls/internal/doctor"
 	"pls/internal/render"
 	runtimeinfo "pls/internal/runtimeinfo"
 )
@@ -42,6 +43,30 @@ func run(args []string) int {
 		if len(parsed.RequestParts) == 0 && !parsed.Help {
 			return 1
 		}
+		return 0
+	}
+
+	if len(parsed.RequestParts) == 1 && parsed.RequestParts[0] == "doctor" {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		report, err := doctor.Run(ctx, parsed.Flags)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+			return 1
+		}
+
+		if parsed.Flags.JSON {
+			encoder := json.NewEncoder(os.Stdout)
+			encoder.SetIndent("", "  ")
+			if err := encoder.Encode(report); err != nil {
+				fmt.Fprintf(os.Stderr, "pls: %v\n", err)
+				return 1
+			}
+			return 0
+		}
+
+		fmt.Fprintln(os.Stdout, doctor.Human(report))
 		return 0
 	}
 

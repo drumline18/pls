@@ -20,6 +20,7 @@ const HelpText = `pls — natural-language shell command suggester
 
 Usage:
   pls <request>
+  pls doctor
   pls --provider openai --model gpt-4.1-mini show hidden files here
   pls --provider ollama --model qwen2.5-coder:7b-instruct-q4_K_M list large files in this directory
   pls --json find files bigger than 500mb
