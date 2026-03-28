@@ -3,9 +3,10 @@
 `pls` is a natural-language shell command suggester written in Go.
 
 Current MVP goals:
-- command generation only
+- command generation first, with optional confirmed execution
 - no quotes required around the prompt
 - Linux-first, shell-aware
+- platform-aware prompting for macOS and Windows PowerShell
 - provider support early: Ollama and OpenAI
 - explain command + risk level
 - JSON output for future integrations
@@ -28,6 +29,16 @@ pls --provider ollama --model qwen2.5-coder:7b-instruct-q4_K_M show hidden files
 pls --json list the 10 biggest files under the current directory
 pls -- show me files named --json
 ```
+
+## Platform support
+
+Current support status:
+- Linux: **primary**
+- macOS: **beta**
+- Windows PowerShell: **beta**
+- Windows cmd.exe: **limited**
+
+Right now Linux has the strongest normalization and post-processing rules. macOS and PowerShell now get platform-aware prompt examples and instructions, but they still have less hand-tuned coverage than Linux.
 
 ## Config file
 
@@ -206,6 +217,7 @@ That checks things like:
 - whether a local `pls.json` override is active
 - whether yolo mode is enabled and where it came from
 - current runtime OS/shell/cwd
+- the current platform support tier
 - whether `pls` is in `PATH`
 - provider basics and a lightweight health check
 
