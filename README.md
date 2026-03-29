@@ -1,6 +1,6 @@
 # pls — ask your computer nicely
 
-`pls` is a natural-language shell command suggester written in Go.
+`pls` is a natural-language shell command suggester written in Go. Integrates with most popular LLM services.
 
 You type what you want in plain English. `pls` turns that into a shell command, explains what it does, rates the risk, and can ask for confirmation before running it.
 
@@ -16,7 +16,7 @@ It is built for the kind of things people actually do in a terminal:
 ## Demo
 
 ![pls demo](assets/pls-demo.gif)
-
+*Demo provider is Ollama running Qwen3.5:4B on a RTX3070*
 ## Why use it?
 
 Because a lot of shell work is really this:
@@ -307,24 +307,9 @@ Examples:
 export PLS_PROVIDER=anthropic
 export PLS_MODEL=claude-3-5-haiku-latest
 export ANTHROPIC_API_KEY=your_key_here
-```
-
-```bash
-export PLS_PROVIDER=gemini
-export PLS_MODEL=gemini-2.5-flash
-export GEMINI_API_KEY=your_key_here
-```
-
-```bash
-export PLS_PROVIDER=groq
-export PLS_MODEL=llama-3.3-70b-versatile
-export GROQ_API_KEY=your_key_here
-```
-
-```bash
-export PLS_PROVIDER=deepseek
-export PLS_MODEL=deepseek-chat
-export DEEPSEEK_API_KEY=your_key_here
+# export GEMINI_API_KEY=your_key_here
+# export GROQ_API_KEY=your_key_here
+# export DEEPSEEK_API_KEY=your_key_here
 ```
 
 For local OpenAI-compatible servers, `provider=openai` with `host=<base-url>` is still useful.
