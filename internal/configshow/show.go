@@ -11,16 +11,16 @@ import (
 )
 
 type Report struct {
-	GlobalConfigPath      string `json:"globalConfigPath"`
-	GlobalConfigExists    bool   `json:"globalConfigExists"`
-	LocalConfigPath       string `json:"localConfigPath,omitempty"`
-	LocalConfigExists     bool   `json:"localConfigExists"`
-	EffectiveProvider     string `json:"effectiveProvider,omitempty"`
-	EffectiveModel        string `json:"effectiveModel,omitempty"`
-	EffectiveHost         string `json:"effectiveHost,omitempty"`
-	ConfigStoredAPIKeyConfigured bool  `json:"configStoredApiKeyConfigured"`
-	YoloMode             bool   `json:"yoloMode"`
-	YoloSource           string `json:"yoloSource,omitempty"`
+	GlobalConfigPath             string `json:"globalConfigPath"`
+	GlobalConfigExists           bool   `json:"globalConfigExists"`
+	LocalConfigPath              string `json:"localConfigPath,omitempty"`
+	LocalConfigExists            bool   `json:"localConfigExists"`
+	EffectiveProvider            string `json:"effectiveProvider,omitempty"`
+	EffectiveModel               string `json:"effectiveModel,omitempty"`
+	EffectiveHost                string `json:"effectiveHost,omitempty"`
+	ConfigStoredAPIKeyConfigured bool   `json:"configStoredApiKeyConfigured"`
+	YoloMode                     bool   `json:"yoloMode"`
+	YoloSource                   string `json:"yoloSource,omitempty"`
 }
 
 func Run(flags types.Flags) (Report, error) {
@@ -46,10 +46,33 @@ func Run(flags types.Flags) (Report, error) {
 	report.EffectiveProvider = cfg.Provider
 	report.EffectiveModel = cfg.Model
 	report.EffectiveHost = cfg.Host
-	report.ConfigStoredAPIKeyConfigured = strings.TrimSpace(cfg.OpenAIAPIKey) != ""
+	report.ConfigStoredAPIKeyConfigured, err = hasStoredOpenAIKey(globalPath, cfg.LocalConfigPath)
+	if err != nil {
+		return Report{}, err
+	}
 	report.YoloMode = cfg.YoloMode
 	report.YoloSource = cfg.YoloSource
 	return report, nil
+}
+
+func hasStoredOpenAIKey(globalPath, localPath string) (bool, error) {
+	globalCfg, err := config.ReadFile(globalPath, false)
+	if err != nil {
+		return false, err
+	}
+	if strings.TrimSpace(globalCfg.OpenAIAPIKey) != "" {
+		return true, nil
+	}
+
+	if strings.TrimSpace(localPath) == "" {
+		return false, nil
+	}
+
+	localCfg, err := config.ReadFile(localPath, false)
+	if err != nil {
+		return false, err
+	}
+	return strings.TrimSpace(localCfg.OpenAIAPIKey) != "", nil
 }
 
 func Human(report Report) string {

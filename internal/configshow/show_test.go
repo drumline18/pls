@@ -82,3 +82,30 @@ func TestHumanIncludesKeyFields(t *testing.T) {
 		}
 	}
 }
+
+func TestRunDoesNotTreatEnvKeyAsStoredConfigKey(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
+	t.Setenv("PLS_CONFIG", "")
+	t.Setenv("OPENAI_API_KEY", "env-key")
+	t.Setenv("PLS_OPENAI_API_KEY", "")
+	t.Setenv("PLS_YOLO_MODE", "")
+
+	globalPath := filepath.Join(home, ".config", "pls", "config.json")
+	if err := os.MkdirAll(filepath.Dir(globalPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(globalPath, []byte(`{"provider":"openai","model":"gpt-4.1-mini"}`), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	report, err := Run(types.Flags{})
+	if err != nil {
+		t.Fatalf("Run returned error: %v", err)
+	}
+
+	if report.ConfigStoredAPIKeyConfigured {
+		t.Fatalf("expected config-stored key to be false when only env key is set")
+	}
+}
