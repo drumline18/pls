@@ -493,7 +493,7 @@
           <h2>Install it the way you already work.</h2>
         </div>
         <p>
-          Pick the native path for your OS, or keep an eye on the universal npm install story if one command across machines matters more to you than package-manager purity.
+          Pick the install path that fits your machine best: Homebrew on macOS, Scoop on Windows, or GitHub Releases and <code>go install</code> when that fits better.
         </p>
       </div>
 
@@ -503,7 +503,7 @@
             <button class="tab active" data-target="macos">macOS</button>
             <button class="tab" data-target="linux">Linux</button>
             <button class="tab" data-target="windows">Windows</button>
-            <button class="tab" data-target="universal">Works everywhere</button>
+            <button class="tab" data-target="releases">Releases</button>
           </div>
 
           <div class="copy-row">
@@ -529,8 +529,8 @@ brew install pls</pre>
             <p>GitHub Releases, Homebrew, Scoop, and <code>go install</code> are already available.</p>
           </div>
           <div class="note">
-            <strong>Universal next</strong>
-            <p><code>npm install -g @drumline18/pls</code> is the most likely cross-platform one-command install story, but it is still planned, not shipped.</p>
+            <strong>Release archives</strong>
+            <p>If you do not want a package manager, GitHub Releases gives you direct prebuilt binaries for each supported platform.</p>
           </div>
           <div class="note">
             <strong>Good defaults</strong>
@@ -592,10 +592,10 @@ brew install pls</pre>
         command: 'scoop bucket add drumline18 https://github.com/drumline18/scoop-bucket\nscoop install pls',
         description: 'Best native path on Windows if you already use Scoop.'
       },
-      universal: {
-        label: 'Works everywhere (planned)',
-        command: 'npm install -g @drumline18/pls',
-        description: 'The ideal universal install story if npm distribution is added.'
+      releases: {
+        label: 'Direct downloads from GitHub Releases',
+        command: 'open https://github.com/drumline18/pls/releases',
+        description: 'Best if you want the release binaries directly instead of using a package manager.'
       }
     };
 

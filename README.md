@@ -62,18 +62,6 @@ go install github.com/drumline18/pls/cmd/pls@latest
 
 > If `pls` is not found afterwards, make sure `$HOME/go/bin` is on your `PATH`.
 
-### Works everywhere
-
-The most promising universal install story is npm:
-
-```bash
-npm install -g @drumline18/pls
-```
-
-That npm path is **planned**, not live yet.
-
-See `NPM.md` for the distribution plan.
-
 ### Other install methods
 
 **GitHub Releases**
@@ -104,7 +92,6 @@ Current state:
 - Homebrew tap is live
 - Scoop bucket is live
 - `go install github.com/drumline18/pls/cmd/pls@latest` works
-- npm is being considered as the future cross-platform one-command installer
 
 Install links:
 - Releases: <https://github.com/drumline18/pls/releases>
