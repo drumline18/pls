@@ -2,6 +2,11 @@
 
 `pls` is a natural-language shell command suggester written in Go.
 
+Status:
+- actively being prepared for open source and distribution
+- not published yet
+- local install works today; public `go install` needs the final public module path
+
 Current MVP goals:
 - command generation first, with optional confirmed execution
 - no quotes required around the prompt
@@ -271,6 +276,20 @@ If you are using a non-default Go binary, the same install works with that toolc
 GOBIN=$HOME/.local/bin ~/.local/bin/go1.26 install ./cmd/pls
 ```
 
+## Distribution status
+
+Planned public distribution path:
+- GitHub Releases archives via GoReleaser
+- `go install` after the final public module path is set
+- Homebrew and Scoop after the first public release works cleanly
+
+Not ready yet:
+- final public module path in `go.mod`
+- explicit `LICENSE`
+- published release artifacts
+
+See `RELEASE.md` for the current pre-publish checklist.
+
 ## Run
 
 ```bash
@@ -327,6 +346,7 @@ It also opens with a bad joke, because `pls doctor` kind of deserves one.
 make test
 make build
 make print-config-path
+make release-snapshot
 ```
 
 If your default Go is too old:

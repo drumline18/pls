@@ -3,7 +3,7 @@ BINARY_PATH := bin/$(BINARY)
 INSTALL_DIR ?= $(HOME)/.local/bin
 GO ?= go
 
-.PHONY: build test install uninstall print-config-path doctor go-version
+.PHONY: build test install uninstall print-config-path doctor go-version release-snapshot
 
 build:
 	$(GO) build -o $(BINARY_PATH) ./cmd/pls
@@ -28,3 +28,6 @@ doctor:
 
 go-version:
 	$(GO) version
+
+release-snapshot:
+	goreleaser release --snapshot --clean --config .goreleaser.yaml --skip=publish,announce,sign
