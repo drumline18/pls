@@ -139,7 +139,27 @@ pls find files bigger than 500mb under the current directory
 
 ## What it feels like
 
-Examples:
+The normal `pls` flow is just: say what you want, get a command back.
+
+Natural-language examples:
+
+```bash
+pls show me all dotfiles in this directory
+pls check if jellyfin is running
+pls find files bigger than 500mb under the current directory
+pls move all srt files in the current directory into a subtitles folder
+pls replace spaces in all filenames here with underscores
+pls prefix all jpgs with vacation-
+pls prefix all the mp3s with their lengths in seconds
+pls --provider openai --model gpt-4.1-mini why is port 3000 busy
+pls --provider ollama --model qwen3.5:4b show hidden files here
+pls --json list the 10 biggest files under the current directory
+pls -- show me files named --json
+```
+
+## Built-in commands
+
+These are the explicit non-natural-language commands for setup, inspection, and config management:
 
 ```bash
 pls doctor
@@ -148,19 +168,6 @@ pls config init
 pls config local init
 pls config show
 pls config path
-pls show me all dotfiles in this directory
-pls --yes show hidden files here
-pls --no-exec prefix all jpgs with vacation-
-pls find files bigger than 500mb
-pls check if jellyfin is running
-pls prefix all the mp3s with their lengths in seconds
-pls prefix all jpgs with vacation-
-pls replace spaces in all filenames here with underscores
-pls move all srt files into a subtitles folder
-pls --provider openai --model gpt-4.1-mini why is port 3000 busy
-pls --provider ollama --model qwen3.5:4b show hidden files here
-pls --json list the 10 biggest files under the current directory
-pls -- show me files named --json
 ```
 
 ## How execution works
