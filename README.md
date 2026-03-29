@@ -2,20 +2,118 @@
 
 `pls` is a natural-language shell command suggester written in Go.
 
-Current MVP goals:
-- command generation first, with optional confirmed execution
-- no quotes required around the prompt
-- Linux-first, shell-aware
-- platform-aware prompting for macOS and Windows PowerShell
-- broader provider support via any-llm-go
-- explain command + risk level
-- JSON output for future integrations
+You type what you want in plain English. `pls` turns that into a shell command, explains what it does, rates the risk, and can ask for confirmation before running it.
+
+It is built for the kind of things people actually do in a terminal:
+- inspection commands
+- file operations
+- service checks
+- shell-friendly one-liners
+- quick "what's the command for this?" moments
 
 ## Demo
 
 ![pls demo](assets/pls-demo.gif)
 
-## Examples
+## Why use it?
+
+Because a lot of shell work is really this:
+- "show hidden files here"
+- "check if jellyfin is running"
+- "move all srt files into a subtitles folder"
+- "find files bigger than 500mb"
+
+You know what you want. You just do not always want to stop and reconstruct the exact command syntax from memory.
+
+`pls` aims to be:
+- direct
+- readable
+- reasonably safe
+- boring in a good way
+
+## Install
+
+### Fastest install from GitHub
+
+If you already have Go 1.25+:
+
+```bash
+go install github.com/drumline18/pls/cmd/pls@latest
+```
+
+That installs the `pls` binary into your Go bin directory.
+
+If that directory is not already on your `PATH`, add one of these depending on your setup:
+
+```bash
+export PATH="$HOME/go/bin:$PATH"
+```
+
+or:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+### Install from a local clone
+
+```bash
+git clone https://github.com/drumline18/pls.git
+cd pls
+make install
+```
+
+That installs `pls` to:
+
+```bash
+~/.local/bin/pls
+```
+
+### Build manually
+
+```bash
+git clone https://github.com/drumline18/pls.git
+cd pls
+go build -o bin/pls ./cmd/pls
+```
+
+### Distribution status
+
+Current state:
+- GitHub repo is live
+- `go install github.com/drumline18/pls/cmd/pls@latest` works
+- GitHub Releases / packaged binaries are the next release task
+- Homebrew and Scoop are planned, but not published yet
+
+So right now the best install path is `go install` or building from source.
+
+## Quick start
+
+If you want a guided first-run setup:
+
+```bash
+pls setup
+```
+
+or:
+
+```bash
+pls config init
+```
+
+That lets you choose a provider, model, host, and optional execution behavior.
+
+Then try something simple:
+
+```bash
+pls show hidden files here
+pls check if jellyfin is running
+pls find files bigger than 500mb under the current directory
+```
+
+## What it feels like
+
+Examples:
 
 ```bash
 pls doctor
@@ -34,10 +132,35 @@ pls prefix all jpgs with vacation-
 pls replace spaces in all filenames here with underscores
 pls move all srt files into a subtitles folder
 pls --provider openai --model gpt-4.1-mini why is port 3000 busy
-pls --provider ollama --model qwen2.5-coder:7b-instruct-q4_K_M show hidden files here
+pls --provider ollama --model qwen3.5:4b show hidden files here
 pls --json list the 10 biggest files under the current directory
 pls -- show me files named --json
 ```
+
+## How execution works
+
+In an interactive terminal, `pls` can suggest a command and then ask before running it:
+
+```text
+Run it? [y/N]
+```
+
+Useful flags:
+
+```bash
+pls --yes show hidden files here
+pls --no-exec prefix all jpgs with vacation-
+pls show me files named --json
+pls -- show me files named --json
+```
+
+Behavior:
+- `--yes` auto-runs low/medium-risk commands without prompting
+- `yoloMode: true` acts like a config-backed `--yes`
+- `PLS_YOLO_MODE=true` can override yolo mode from the environment
+- high-risk commands still ask for confirmation
+- `--no-exec` forces suggestion-only behavior even in a TTY
+- in non-interactive mode and `--json` mode, `pls` stays suggestion-only
 
 ## Platform support
 
@@ -47,33 +170,28 @@ Current support status:
 - Windows PowerShell: **beta**
 - Windows cmd.exe: **limited**
 
-Right now Linux has the strongest normalization and post-processing rules. macOS and PowerShell now get platform-aware prompt examples and instructions, but they still have less hand-tuned coverage than Linux.
+Linux currently has the strongest normalization and post-processing rules. macOS and PowerShell are supported, but have less hand-tuned coverage right now.
 
-## Config file
+## Configuration
 
-Default path:
+Global config path:
 
 ```bash
 ~/.config/pls/config.json
 ```
 
-First-time setup wizard:
-
-```bash
-pls setup
-# or
-pls config init
-```
-
 Built-in config commands:
 
 ```bash
+pls config init
+pls config local init
 pls config show
 pls config path
-pls config local init
 ```
 
-`pls setup`, `pls config init`, and `pls config local init` are treated as strict built-in commands. Longer phrases like `pls config init my project` or `pls setup my repo` still go through the normal natural-language path.
+`pls setup` is just a friendly alias for `pls config init`.
+
+`pls setup`, `pls config init`, and `pls config local init` are strict built-in commands. Longer phrases like `pls config init my project` still go through the normal natural-language path.
 
 You can print the resolved config path with:
 
@@ -93,24 +211,24 @@ or:
 export PLS_CONFIG=/path/to/config.json
 ```
 
-Config precedence is:
+Config precedence:
 
 ```text
 flags > environment > local pls.json > global config > built-in defaults
 ```
 
-Global config example (`~/.config/pls/config.json`):
+Example global config:
 
 ```json
 {
   "provider": "ollama",
-  "model": "qwen2.5-coder:7b-instruct-q4_K_M",
-  "host": "http://192.168.2.166:11434",
+  "model": "qwen3.5:4b",
+  "host": "http://127.0.0.1:11434",
   "yoloMode": false
 }
 ```
 
-Local override example (`pls.json` in a project directory):
+Example local override (`pls.json` inside a project):
 
 ```json
 {
@@ -122,7 +240,7 @@ Local override example (`pls.json` in a project directory):
 
 A copyable example also lives at `examples/config.example.json`.
 
-## Provider configuration
+## Providers
 
 Currently wired providers:
 - Ollama
@@ -136,33 +254,26 @@ Currently wired providers:
 - llama.cpp server
 - llamafile server
 
-The setup wizard now covers all currently wired providers.
+The setup wizard covers all of them.
 
 Behavior:
-- the global wizard can set provider/model/host for any supported provider
+- the global wizard can set provider / model / host for any supported provider
 - OpenAI can optionally store an API key in global config
-- non-OpenAI hosted providers use their normal environment variable for credentials
-- the local wizard can override provider/model/host/yolo mode, but never stores API keys locally
+- non-OpenAI hosted providers use their usual environment variable for credentials
+- the local wizard can override provider / model / host / yolo mode, but never stores API keys locally
 
 ### Ollama
 
-Defaults:
-- provider: `ollama` if no OpenAI API key is present
-- host: `http://127.0.0.1:11434`
-- model: `qwen2.5-coder:7b-instruct-q4_K_M`
-
-Environment variables:
+Typical environment variables:
 
 ```bash
 export OLLAMA_HOST=http://127.0.0.1:11434
 export PLS_OLLAMA_HOST=http://127.0.0.1:11434
 export PLS_PROVIDER=ollama
-export PLS_MODEL=qwen2.5-coder:7b-instruct-q4_K_M
+export PLS_MODEL=qwen3.5:4b
 ```
 
 ### OpenAI
-
-Environment variables:
 
 ```bash
 export OPENAI_API_KEY=your_key_here
@@ -170,7 +281,7 @@ export PLS_PROVIDER=openai
 export PLS_MODEL=gpt-4.1-mini
 ```
 
-### Additional providers
+### Other providers
 
 Examples:
 
@@ -200,142 +311,9 @@ export DEEPSEEK_API_KEY=your_key_here
 
 For local OpenAI-compatible servers, `provider=openai` with `host=<base-url>` is still useful.
 
-### Execution / yolo mode
-
-Optional environment override:
-
-```bash
-export PLS_YOLO_MODE=true
-```
-
-Accepted values are: `true`, `false`, `yes`, `no`, `on`, `off`, `1`, `0`.
-
-## Toolchain
-
-`pls` currently targets **Go 1.25+** because of the provider stack behind `any-llm-go`.
-
-If your default `go` is older, either use a newer Go directly:
-
-```bash
-~/.local/bin/go1.26 test ./...
-~/.local/bin/go1.26 build -o bin/pls ./cmd/pls
-```
-
-or point the Makefile at it:
-
-```bash
-cd pls
-GO=~/.local/bin/go1.26 make test
-GO=~/.local/bin/go1.26 make build
-```
-
-## Build
-
-```bash
-cd pls
-make build
-```
-
-Or directly:
-
-```bash
-go build -o bin/pls ./cmd/pls
-```
-
-## Install into PATH
-
-Recommended local install:
-
-```bash
-cd pls
-make install
-```
-
-That installs `pls` to:
-
-```bash
-~/.local/bin/pls
-```
-
-If `~/.local/bin` is not already in your PATH, add this to your shell rc file:
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-Alternative:
-
-```bash
-GOBIN=$HOME/.local/bin go install ./cmd/pls
-```
-
-If you are using a non-default Go binary, the same install works with that toolchain too:
-
-```bash
-GOBIN=$HOME/.local/bin ~/.local/bin/go1.26 install ./cmd/pls
-```
-
-Planned public install command once the repo is live:
-
-```bash
-go install github.com/drumline18/pls/cmd/pls@latest
-```
-
-## Distribution status
-
-Planned public distribution path:
-- GitHub Releases archives via GoReleaser
-- `go install github.com/drumline18/pls/cmd/pls@latest`
-- Homebrew via a future `drumline18/homebrew-tap`
-- Scoop via a future `drumline18/scoop-bucket`
-
-Already prepared:
-- public module path in `go.mod`
-- MIT `LICENSE`
-- GoReleaser release archives/checksums
-- packaging templates under `packaging/`
-
-Still not done:
-- actual public repo push/publish
-- first tagged release artifacts
-- live Homebrew tap / Scoop bucket repos
-
-See `RELEASE.md` for the current pre-publish checklist.
-
-## Run
-
-```bash
-pls show hidden files here
-```
-
-In an interactive terminal, `pls` now prompts before execution:
-
-```text
-Run it? [y/N]
-```
-
-Execution flags fit cleanly with no quotes because `pls` only parses **leading** known flags. As soon as the natural-language request starts, the rest is treated as request text.
-
-Examples:
-
-```bash
-pls --yes show hidden files here
-pls --no-exec prefix all jpgs with vacation-
-pls show me files named --json
-pls -- show me files named --json
-```
-
-Behavior:
-- `--yes` auto-runs low/medium-risk commands without prompting
-- `yoloMode: true` acts like a config-backed `--yes`
-- `PLS_YOLO_MODE=true` can override yolo mode from the environment
-- high-risk commands still ask for confirmation
-- `--no-exec` forces suggestion-only behavior even in a TTY
-- in non-interactive mode and `--json` mode, `pls` stays suggestion-only
-
 ## Doctor
 
-Run a quick local sanity check:
+Run a quick sanity check:
 
 ```bash
 pls doctor
@@ -345,14 +323,20 @@ That checks things like:
 - resolved global config path
 - whether a local `pls.json` override is active
 - whether yolo mode is enabled and where it came from
-- current runtime OS/shell/cwd
-- the current platform support tier
+- current runtime OS / shell / cwd
+- current platform support tier
 - whether `pls` is in `PATH`
 - provider basics and a lightweight health check
 
 It also opens with a bad joke, because `pls doctor` kind of deserves one.
 
 ## Development
+
+Toolchain target:
+- Go **1.25+**
+- Go **1.26.1** is the current development baseline here
+
+Common commands:
 
 ```bash
 make test
@@ -361,7 +345,14 @@ make print-config-path
 make release-snapshot
 ```
 
-Useful packaging/release prep files:
+If your default Go is too old:
+
+```bash
+GO=~/.local/bin/go1.26 make test
+GO=~/.local/bin/go1.26 make build
+```
+
+Useful project files:
 - `RELEASE.md`
 - `PUBLISHING.md`
 - `packaging/README.md`
@@ -371,42 +362,10 @@ Useful packaging/release prep files:
 - `demo/readme.tape`
 - `scripts/render_readme_demo.sh`
 
-If your default Go is too old:
-
-```bash
-GO=~/.local/bin/go1.26 make test
-GO=~/.local/bin/go1.26 make build
-```
-
-## Setup and config commands
-
-`pls setup` is a friendly alias for `pls config init`.
-
-`pls config init` walks through global provider setup for all supported providers, writes the global config file, and can enable yolo mode.
-
-`pls config local init` writes `./pls.json` for the current project and focuses on local overrides like provider/model/host/yolo mode. It never stores API keys locally.
-
-`pls config show` prints the effective config state, including the active global path, any local override, provider/model/host, and yolo mode.
-
-`pls config path` prints the resolved global config path.
-
-Current scope:
-- global config wizard for first-run setup across all supported providers
-- project-local wizard for `pls.json` overrides
-- provider-aware host/model prompts
-- Ollama model discovery when the target host is reachable
-- OpenAI API key prompt for global config only
-- environment-variable credential guidance for other hosted providers
-- optional yolo mode toggle in both wizards
-- local wizard avoids storing API keys
-
 ## Notes
 
-- Everything after `pls` is treated as the request unless parsed as a known flag.
-- In a real TTY, `pls` can prompt with `Run it? [y/N]` and execute the suggested command through your shell.
-- `--yes` auto-runs only low/medium-risk suggestions; high-risk ones still require confirmation.
-- `--no-exec` forces suggestion-only behavior.
-- Safety policy can escalate risky commands for manual review.
-- Style normalization prefers boring direct commands over parsing `ls` output for common listing tasks.
-- More advanced prompts can return concise shell loops for batch file operations when that is the clearest single command.
+- Everything after `pls` is treated as the request unless parsed as a known leading flag.
+- `pls` prefers direct, readable commands over text-parsing hacks for common tasks.
+- Style normalization intentionally rewrites some generated commands into safer or more boring equivalents.
+- More advanced prompts can still return short shell loops for batch file operations when that is the clearest answer.
 - Bulk rename and move commands are treated as high-risk suggestions and should be reviewed before execution.

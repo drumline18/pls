@@ -1,6 +1,6 @@
 # Release & Open-Source Prep
 
-This repo is being prepared for public release, but should **not** be published yet.
+This repo is now public, but packaged releases and distribution channels are still being prepared.
 
 ## Chosen public settings
 
@@ -20,19 +20,9 @@ This repo is being prepared for public release, but should **not** be published 
 - README notes for install and release expectations
 - Homebrew / Scoop packaging templates under `packaging/`
 
-## Remaining steps before publishing
+## Remaining steps before packaged release
 
-### 1) Create / push the public GitHub repo
-
-Target:
-
-```text
-drumline18/pls
-```
-
-Once that repo exists and this code is pushed there, the public module path and GitHub URLs in the repo will line up.
-
-### 2) Tag the first release
+### 1) Tag the first release
 
 Recommended starting point:
 
@@ -40,27 +30,26 @@ Recommended starting point:
 v0.1.0
 ```
 
-### 3) Create the first public release artifacts
+### 2) Create the first public release artifacts
 
-Use GoReleaser to produce draft release artifacts after the repo is pushed and tagged.
+Use GoReleaser to produce draft or published release artifacts after the repo is tagged.
 
-### 4) Create package-manager repos when ready
+### 3) Create package-manager repos when ready
 
 Planned names:
 - Homebrew tap: `drumline18/homebrew-tap`
 - Scoop bucket: `drumline18/scoop-bucket`
 
-## Suggested first public-release sequence
+## Suggested first packaged-release sequence
 
-1. Create the GitHub repo `drumline18/pls`
-2. Push the repo and verify CI
-3. Create tag `v0.1.0`
-4. Run GoReleaser to create draft release artifacts
-5. Review release notes, checksums, and archives
-6. Publish the draft release
-7. Create `drumline18/homebrew-tap` and `drumline18/scoop-bucket`
-8. Fill in the templates from `packaging/`
-9. Publish package-manager entries
+1. Verify CI on `drumline18/pls`
+2. Create tag `v0.1.0`
+3. Run GoReleaser to create draft release artifacts
+4. Review release notes, checksums, and archives
+5. Publish the release
+6. Create `drumline18/homebrew-tap` and `drumline18/scoop-bucket`
+7. Fill in the templates from `packaging/`
+8. Publish package-manager entries
 
 ## Public install target
 
