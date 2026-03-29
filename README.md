@@ -35,6 +35,9 @@ You know what you want. You just do not always want to stop and reconstruct the 
 
 ## Install
 
+> [!WARNING]
+> `pls` does not run commands by default, but AI output can be wrong or harmful. Use at your own risk.
+
 ### Fastest install from GitHub
 
 If you already have Go 1.25+:
