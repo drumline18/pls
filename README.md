@@ -2,12 +2,6 @@
 
 `pls` is a natural-language shell command suggester written in Go.
 
-Status:
-- actively being prepared for open source and distribution
-- planned public repo: `github.com/drumline18/pls`
-- not published yet
-- module path and MIT license are set; public `go install` will work once the repo exists publicly
-
 Current MVP goals:
 - command generation first, with optional confirmed execution
 - no quotes required around the prompt
@@ -20,8 +14,6 @@ Current MVP goals:
 ## Demo
 
 ![pls demo](assets/pls-demo.gif)
-
-Recorded from `demo/readme.tape` using `vhs` and `scripts/render_readme_demo.sh`.
 
 ## Examples
 
@@ -418,4 +410,3 @@ Current scope:
 - Style normalization prefers boring direct commands over parsing `ls` output for common listing tasks.
 - More advanced prompts can return concise shell loops for batch file operations when that is the clearest single command.
 - Bulk rename and move commands are treated as high-risk suggestions and should be reviewed before execution.
-- The previous Node prototype is preserved under `legacy/node-prototype/`.
