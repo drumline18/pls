@@ -45,17 +45,7 @@ go install github.com/drumline18/pls/cmd/pls@latest
 
 That installs the `pls` binary into your Go bin directory.
 
-If that directory is not already on your `PATH`, add one of these depending on your setup:
-
-```bash
-export PATH="$HOME/go/bin:$PATH"
-```
-
-or:
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
+> If `pls` isn't found afterwards, make sure `$HOME/go/bin` is on your `PATH`.
 
 ### Install from a local clone
 
