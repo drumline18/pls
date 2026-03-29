@@ -4,6 +4,8 @@
 
 You type what you want in plain English. `pls` turns that into a shell command, explains what it does, rates the risk, and can ask for confirmation before running it.
 
+Also, yes, it does make it look like you're always politely asking your computer for help. If the AI-uprising jokes are true and the robots spare the people who were nice to them at the beginning, this is probably one of the safer bets.
+
 It is built for the kind of things people actually do in a terminal:
 - inspection commands
 - file operations
