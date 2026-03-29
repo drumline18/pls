@@ -365,9 +365,11 @@ make release-snapshot
 
 Useful packaging/release prep files:
 - `RELEASE.md`
+- `PUBLISHING.md`
 - `packaging/README.md`
 - `packaging/homebrew/pls.rb.tmpl`
 - `packaging/scoop/pls.json.tmpl`
+- `scripts/render_packaging.py`
 
 If your default Go is too old:
 
