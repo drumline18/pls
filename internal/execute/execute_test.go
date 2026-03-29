@@ -3,7 +3,7 @@ package execute
 import (
 	"testing"
 
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/types"
 )
 
 func TestShellInvocationDefaultsToLoginShellStyle(t *testing.T) {

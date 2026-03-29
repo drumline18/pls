@@ -1,6 +1,6 @@
 package prompt
 
-import "pls/internal/types"
+import "github.com/drumline18/pls/internal/types"
 
 func Build(request string, runtimeContext types.RuntimeContext) types.Messages {
 	system := `You generate safe shell command suggestions.

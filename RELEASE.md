@@ -2,94 +2,103 @@
 
 This repo is being prepared for public release, but should **not** be published yet.
 
+## Chosen public settings
+
+- public repo: `github.com/drumline18/pls`
+- module path: `github.com/drumline18/pls`
+- license: MIT
+- recommended first tag: `v0.1.0`
+
 ## Already prepared
 
+- `go.mod` uses `github.com/drumline18/pls`
+- MIT `LICENSE` added
 - CI workflow for tests on Go 1.26.1
 - GoReleaser config for cross-platform archives
-- Contributor / security / issue / PR templates
+- local GoReleaser snapshot dry-run succeeded
+- contributor / security / issue / PR templates
 - README notes for install and release expectations
-- System and local toolchain aligned on Go 1.26.1 during development
+- Homebrew / Scoop packaging templates under `packaging/`
 
-## Still needs final decisions before publishing
+## Remaining steps before publishing
 
-### 1) Pick the public repo path
+### 1) Create / push the public GitHub repo
 
-`go.mod` still says:
+Target:
 
-```go
-module pls
+```text
+drumline18/pls
 ```
 
-Before public release, change it to the final module path, for example:
+Once that repo exists and this code is pushed there, the public module path and GitHub URLs in the repo will line up.
 
-```go
-module github.com/<owner>/pls
+### 2) Tag the first release
+
+Recommended starting point:
+
+```text
+v0.1.0
 ```
 
-This is required for `go install github.com/<owner>/pls/cmd/pls@latest` style installs.
+### 3) Create the first public release artifacts
 
-### 2) Choose a license
+Use GoReleaser to produce draft release artifacts after the repo is pushed and tagged.
 
-Do **not** publish without an explicit license file.
+### 4) Create package-manager repos when ready
 
-Typical options:
-- MIT — simple and permissive
-- Apache-2.0 — permissive with explicit patent grant
-- GPL-3.0 — copyleft
-
-### 3) Decide initial versioning
-
-Suggested starting point:
-- `v0.1.0` if still MVP / fast-moving
-- `v1.0.0` only if CLI behavior is intentionally stable
-
-### 4) Decide distribution channels
-
-Recommended first wave:
-- GitHub Releases archives via GoReleaser
-- `go install` once module path is public
-
-Recommended second wave:
-- Homebrew tap
-- Scoop for Windows
-- maybe `nfpm` packages (`.deb`, `.rpm`) later if demand exists
+Planned names:
+- Homebrew tap: `drumline18/homebrew-tap`
+- Scoop bucket: `drumline18/scoop-bucket`
 
 ## Suggested first public-release sequence
 
-1. Create the public repo
-2. Set the final module path in `go.mod`
-3. Add the chosen `LICENSE`
-4. Push the repo and verify CI
-5. Create a first tag such as `v0.1.0`
-6. Use GoReleaser to create draft release artifacts
-7. Review release notes and binaries
-8. Publish the draft release
-9. Add package-manager channels after the first release works cleanly
+1. Create the GitHub repo `drumline18/pls`
+2. Push the repo and verify CI
+3. Create tag `v0.1.0`
+4. Run GoReleaser to create draft release artifacts
+5. Review release notes, checksums, and archives
+6. Publish the draft release
+7. Create `drumline18/homebrew-tap` and `drumline18/scoop-bucket`
+8. Fill in the templates from `packaging/`
+9. Publish package-manager entries
+
+## Public install target
+
+Once the repo is live, the intended Go install command is:
+
+```bash
+go install github.com/drumline18/pls/cmd/pls@latest
+```
 
 ## Local dry-run commands
 
 Run tests:
 
 ```bash
-GO=~/.local/bin/go1.26 make test
+make test
 ```
 
 Build locally:
 
 ```bash
-GO=~/.local/bin/go1.26 make build
+make build
 ```
 
-If GoReleaser is installed, create a local snapshot build:
+Create a local snapshot build:
+
+```bash
+make release-snapshot
+```
+
+or directly:
 
 ```bash
 goreleaser release --snapshot --clean --config .goreleaser.yaml --skip=publish,announce,sign
 ```
 
-## Homebrew later
+## Packaging templates
 
-Once the public repo exists, add a Homebrew tap or formula repo and wire a `brews:` section into `.goreleaser.yaml`.
-
-## Scoop later
-
-Once the first Windows release exists, add a Scoop manifest repo and point it at the GitHub Release archive/checksum.
+See:
+- `packaging/README.md`
+- `packaging/homebrew/pls.rb.tmpl`
+- `packaging/scoop/pls.json.tmpl`

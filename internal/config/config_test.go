@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/types"
 )
 
 func TestExplicitMissingConfigPathReturnsError(t *testing.T) {

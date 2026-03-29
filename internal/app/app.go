@@ -3,11 +3,11 @@ package app
 import (
 	"context"
 
-	"pls/internal/policy"
-	"pls/internal/prompt"
-	"pls/internal/providers"
-	"pls/internal/style"
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/policy"
+	"github.com/drumline18/pls/internal/prompt"
+	"github.com/drumline18/pls/internal/providers"
+	"github.com/drumline18/pls/internal/style"
+	"github.com/drumline18/pls/internal/types"
 )
 
 func GenerateSuggestion(ctx context.Context, request string, runtimeContext types.RuntimeContext, cfg types.Config) (types.Suggestion, error) {

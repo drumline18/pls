@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"strings"
 
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/types"
 )
 
 func Get(shellOverride, osOverride string) (types.RuntimeContext, error) {

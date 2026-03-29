@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/types"
 )
 
 var highRiskPatterns = []*regexp.Regexp{

@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"pls/internal/config"
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/config"
+	"github.com/drumline18/pls/internal/types"
 )
 
 func RunLocal(flags types.Flags) error {

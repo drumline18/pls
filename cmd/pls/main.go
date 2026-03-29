@@ -8,15 +8,15 @@ import (
 	"strings"
 	"time"
 
-	"pls/internal/app"
-	"pls/internal/cli"
-	"pls/internal/config"
-	"pls/internal/configinit"
-	"pls/internal/configshow"
-	"pls/internal/doctor"
-	"pls/internal/execute"
-	"pls/internal/render"
-	runtimeinfo "pls/internal/runtimeinfo"
+	"github.com/drumline18/pls/internal/app"
+	"github.com/drumline18/pls/internal/cli"
+	"github.com/drumline18/pls/internal/config"
+	"github.com/drumline18/pls/internal/configinit"
+	"github.com/drumline18/pls/internal/configshow"
+	"github.com/drumline18/pls/internal/doctor"
+	"github.com/drumline18/pls/internal/execute"
+	"github.com/drumline18/pls/internal/render"
+	runtimeinfo "github.com/drumline18/pls/internal/runtimeinfo"
 )
 
 func main() {
