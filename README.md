@@ -17,6 +17,12 @@ Current MVP goals:
 - explain command + risk level
 - JSON output for future integrations
 
+## Demo
+
+![pls demo](assets/pls-demo.gif)
+
+Recorded from `demo/readme.tape` using `vhs` and `scripts/render_readme_demo.sh`.
+
 ## Examples
 
 ```bash
@@ -370,6 +376,8 @@ Useful packaging/release prep files:
 - `packaging/homebrew/pls.rb.tmpl`
 - `packaging/scoop/pls.json.tmpl`
 - `scripts/render_packaging.py`
+- `demo/readme.tape`
+- `scripts/render_readme_demo.sh`
 
 If your default Go is too old:
 
