@@ -110,7 +110,7 @@ Install links:
 - Releases: <https://github.com/drumline18/pls/releases>
 - Homebrew tap: <https://github.com/drumline18/homebrew-tap>
 - Scoop bucket: <https://github.com/drumline18/scoop-bucket>
-- Install page mockup: `website/install.html`
+- Interactive install page: `docs/index.html` (GitHub Pages-ready)
 
 ## Quick start
 
