@@ -7,295 +7,382 @@
   <meta name="description" content="pls is a natural-language shell command suggester. Ask your computer nicely, get the right command back." />
   <style>
     :root {
-      --bg: #0d1015;
-      --bg-2: #121722;
-      --panel: rgba(255,255,255,0.06);
-      --panel-strong: rgba(255,255,255,0.08);
-      --text: #f7f2ea;
-      --muted: #b9b0a3;
-      --accent: #97f2ab;
-      --accent-2: #8dc6ff;
-      --warm: #ffdb9e;
-      --border: rgba(255,255,255,0.12);
-      --shadow: 0 30px 120px rgba(0,0,0,0.42);
-      --radius: 28px;
-      --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-      --sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      --bg:        #0b0b0b;
+      --surface:   #0f130f;
+      --panel:     rgba(51, 204, 102, 0.04);
+      --panel-2:   rgba(51, 204, 102, 0.08);
+      --text:      #dff0df;
+      --muted:     #3a5a3a;
+      --muted-2:   #6a9b6a;
+      --accent:    #33cc66;
+      --accent-2:  #5de88a;
+      --warn:      #e8a838;
+      --border:    rgba(51, 204, 102, 0.16);
+      --border-2:  rgba(51, 204, 102, 0.32);
+      --radius:    3px;
+      --mono:      "IBM Plex Mono", "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
     }
 
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
+
     body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: var(--sans);
+      font-family: var(--mono);
+      font-size: 14px;
       color: var(--text);
-      background:
-        radial-gradient(circle at 10% 10%, rgba(151,242,171,0.14), transparent 28%),
-        radial-gradient(circle at 90% 0%, rgba(141,198,255,0.18), transparent 32%),
-        radial-gradient(circle at 80% 70%, rgba(255,219,158,0.10), transparent 20%),
-        linear-gradient(180deg, var(--bg-2), var(--bg));
+      background: var(--bg);
+      min-height: 100vh;
+      line-height: 1.65;
     }
 
-    a { color: inherit; }
-
-    .shell-noise::before {
-      content: "";
+    /* Scanlines — very subtle */
+    body::after {
+      content: '';
       position: fixed;
       inset: 0;
       pointer-events: none;
-      opacity: 0.045;
-      background-image:
-        linear-gradient(transparent 0%, rgba(255,255,255,0.65) 50%, transparent 100%),
-        linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
-      background-size: 100% 3px, 4px 100%;
-      mix-blend-mode: soft-light;
+      z-index: 9999;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 3px,
+        rgba(0, 0, 0, 0.055) 3px,
+        rgba(0, 0, 0, 0.055) 4px
+      );
     }
+
+    a { color: var(--accent-2); text-decoration: none; }
+    a:hover { color: var(--accent); text-decoration: underline; }
+
+    code {
+      font-family: var(--mono);
+      color: var(--accent-2);
+      background: rgba(51, 204, 102, 0.09);
+      padding: 1px 5px;
+      border-radius: 2px;
+      font-size: 0.9em;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────────── */
 
     .wrap {
       max-width: 1180px;
       margin: 0 auto;
-      padding: 32px 22px 80px;
-      position: relative;
-      z-index: 1;
+      padding: 28px 24px 96px;
     }
+
+    /* ── TOPBAR ─────────────────────────────────────────── */
 
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 32px;
+      gap: 16px;
+      margin-bottom: 72px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
       flex-wrap: wrap;
     }
 
     .brand {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
       display: inline-flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      border-radius: 999px;
-      font-weight: 700;
-      letter-spacing: 0.01em;
+      gap: 7px;
     }
 
-    .brand .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      box-shadow: 0 0 16px rgba(151,242,171,0.7);
+    .brand-prompt { color: var(--accent); }
+
+    .brand-cursor {
+      display: inline-block;
+      width: 9px;
+      height: 15px;
+      background: var(--accent);
+      animation: blink 1.1s step-end infinite;
+      vertical-align: middle;
+      box-shadow: 0 0 10px rgba(51, 204, 102, 0.55);
+    }
+
+    .brand-tagline {
+      color: var(--muted-2);
+      font-weight: 400;
     }
 
     .nav {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .nav a {
+      display: block;
+      text-decoration: none;
+      color: var(--muted-2);
+      padding: 7px 14px;
+      font-size: 13px;
+      border-right: 1px solid var(--border);
+      transition: 120ms;
+    }
+
+    .nav a:last-child { border-right: none; }
+
+    .nav a:hover {
+      color: var(--accent);
+      background: var(--panel);
+      text-decoration: none;
+    }
+
+    /* ── HERO ───────────────────────────────────────────── */
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 56px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    .eyebrow {
+      display: block;
+      font-size: 12px;
+      color: var(--muted-2);
+      margin-bottom: 20px;
+    }
+
+    .eyebrow::before { content: '// '; color: var(--muted); }
+
+    h1 {
+      font-family: var(--mono);
+      font-size: clamp(1.9rem, 3.8vw, 3.4rem);
+      line-height: 1.08;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      margin-bottom: 28px;
+      font-weight: 700;
+
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 0.55em;
+      height: 0.88em;
+      background: var(--accent);
+      animation: blink 1.1s step-end infinite;
+      vertical-align: -0.06em;
+      margin-left: 0.06em;
+      box-shadow: 0 0 18px rgba(51, 204, 102, 0.45);
+    }
+
+    .hero-copy p {
+      margin: 0 0 32px;
+      color: var(--muted-2);
+      font-size: 14px;
+      line-height: 1.8;
+      max-width: 52ch;
+    }
+
+    .hero-copy strong { color: var(--text); }
+
+    .hero-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
     }
 
-    .nav a {
-      text-decoration: none;
-      color: var(--muted);
-      border: 1px solid transparent;
-      padding: 10px 12px;
-      border-radius: 999px;
-      transition: 160ms ease;
-    }
-
-    .nav a:hover {
-      color: var(--text);
-      border-color: var(--border);
-      background: rgba(255,255,255,0.03);
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 28px;
-      align-items: stretch;
-      margin-bottom: 28px;
-    }
-
-    @media (max-width: 980px) {
-      .hero { grid-template-columns: 1fr; }
-    }
-
-    .hero-copy,
-    .hero-card,
-    .section-card,
-    .install-card,
-    .note,
-    .example-card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(16px);
-    }
-
-    .hero-copy {
-      padding: 32px;
-      display: grid;
-      gap: 18px;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      width: fit-content;
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      color: var(--muted);
-      background: rgba(255,255,255,0.03);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(3rem, 6vw, 5.8rem);
-      line-height: 0.92;
-      letter-spacing: -0.055em;
-    }
-
-    .hero-copy p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 1.08rem;
-      line-height: 1.7;
-      max-width: 56ch;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 6px;
-    }
-
     .btn {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 10px 20px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: 120ms;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      text-decoration: none;
-      padding: 13px 16px;
-      border-radius: 999px;
-      font-weight: 700;
-      border: 1px solid var(--border);
-      transition: 160ms ease;
+      border-radius: var(--radius);
+    }
+
+    .btn::before {
+      content: '> ';
+      opacity: 0.5;
+      font-weight: 400;
+      margin-right: 4px;
     }
 
     .btn.primary {
-      color: #0c1117;
-      background: linear-gradient(135deg, var(--accent), var(--warm));
-      border-color: transparent;
+      color: #080c08;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .btn.primary:hover {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+      text-decoration: none;
     }
 
     .btn.secondary {
-      color: var(--text);
-      background: rgba(255,255,255,0.03);
+      color: var(--muted-2);
+      background: transparent;
+      border-color: var(--border-2);
     }
 
-    .btn:hover { transform: translateY(-1px); }
+    .btn.secondary:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--panel);
+      text-decoration: none;
+    }
+
+    /* ── HERO RIGHT COLUMN ──────────────────────────────── */
 
     .hero-card {
-      padding: 22px;
       display: grid;
       gap: 16px;
     }
 
+    /* ── TERMINAL ───────────────────────────────────────── */
+
     .terminal {
-      border-radius: 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #070909;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: #090d13;
     }
 
     .terminal-top {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px 14px;
-      background: rgba(255,255,255,0.04);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      gap: 7px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
     }
 
     .bubble { width: 10px; height: 10px; border-radius: 50%; }
-    .bubble.red { background: #ff7b7b; }
-    .bubble.yellow { background: #ffd46a; }
-    .bubble.green { background: #79f2ad; }
+    .bubble.red    { background: #aa3333; }
+    .bubble.yellow { background: #aa8822; }
+    .bubble.green  { background: var(--accent); box-shadow: 0 0 8px rgba(51, 204, 102, 0.65); }
 
     .terminal-body {
       padding: 20px;
       font-family: var(--mono);
-      font-size: 14px;
-      line-height: 1.7;
-      color: #dbe9d9;
+      font-size: 13px;
+      line-height: 1.85;
+      color: #b0d0b0;
       white-space: pre-wrap;
     }
 
     .terminal-body .prompt { color: var(--accent); }
-    .terminal-body .dim { color: #95a092; }
-    .terminal-body .cmd { color: #f7f2ea; }
-    .terminal-body .risk { color: var(--warm); }
+    .terminal-body .dim    { color: var(--muted-2); }
+    .terminal-body .cmd    { color: var(--text); }
+    .terminal-body .risk   { color: var(--warn); }
+
+    /* ── MINI GRID ──────────────────────────────────────── */
 
     .mini-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      grid-template-columns: 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
     }
 
-    @media (max-width: 600px) {
-      .mini-grid { grid-template-columns: 1fr; }
-    }
+    /* ── NOTES ──────────────────────────────────────────── */
 
     .note {
-      padding: 16px;
-      border-radius: 20px;
-      background: var(--panel-strong);
+      padding: 13px 18px;
+      background: var(--bg);
     }
 
-    .note strong { display: block; margin-bottom: 6px; }
-    .note p { margin: 0; color: var(--muted); line-height: 1.55; }
+    /* key→value row layout inside the mini-grid */
+    .mini-grid .note {
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+    }
+
+    .note strong {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .mini-grid .note strong {
+      flex-shrink: 0;
+      white-space: nowrap;
+      margin-bottom: 0;
+    }
+
+    .note strong::before { content: '# '; color: var(--muted); font-weight: 400; }
+
+    .note p {
+      margin: 0;
+      color: var(--muted-2);
+      line-height: 1.55;
+      font-size: 12px;
+    }
+
+    /* ── SECTIONS ───────────────────────────────────────── */
 
     .section {
-      margin-top: 26px;
-    }
-
-    .section-card {
-      padding: 24px;
+      margin-top: 88px;
+      padding-top: 64px;
+      border-top: 1px solid var(--border);
     }
 
     .section-head {
       display: flex;
       justify-content: space-between;
       align-items: end;
-      gap: 16px;
-      margin-bottom: 18px;
+      gap: 24px;
+      margin-bottom: 32px;
       flex-wrap: wrap;
     }
 
     h2 {
-      margin: 0;
-      font-size: clamp(1.6rem, 3vw, 2.4rem);
-      letter-spacing: -0.04em;
+      font-family: var(--mono);
+      font-size: clamp(1.2rem, 2.4vw, 1.8rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1.2;
     }
 
+    h2::before { content: '## '; color: var(--muted); font-weight: 400; }
+
     .section-head p {
+      color: var(--muted-2);
+      max-width: 52ch;
+      line-height: 1.65;
+      font-size: 13px;
       margin: 0;
-      color: var(--muted);
-      max-width: 54ch;
-      line-height: 1.6;
     }
+
+    /* ── INSTALL ────────────────────────────────────────── */
 
     .install-layout {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 18px;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
     }
 
     @media (max-width: 960px) {
@@ -303,95 +390,138 @@
     }
 
     .install-card {
+      border: 1px solid var(--border);
       padding: 22px;
+      background: var(--panel);
+      border-radius: var(--radius);
     }
 
     .tabs {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 18px;
+      gap: 0;
+      margin-bottom: 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
     }
 
     .tab {
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.03);
-      color: var(--text);
-      padding: 10px 14px;
-      border-radius: 999px;
-      cursor: pointer;
+      border: none;
+      border-right: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted-2);
+      padding: 8px 16px;
+      font-family: var(--mono);
+      font-size: 12px;
       font-weight: 700;
-      transition: 160ms ease;
+      cursor: pointer;
+      transition: 120ms;
     }
 
+    .tab:last-child { border-right: none; }
+
     .tab.active {
-      background: linear-gradient(135deg, rgba(151,242,171,0.2), rgba(141,198,255,0.18));
-      border-color: rgba(151,242,171,0.45);
+      background: var(--panel-2);
+      color: var(--accent);
+    }
+
+    .tab:hover:not(.active) {
+      color: var(--text);
+      background: rgba(51, 204, 102, 0.04);
     }
 
     .label {
-      color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
+      color: var(--muted);
       margin-bottom: 10px;
     }
+
+    .label::before { content: '// '; }
 
     .copy-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 12px;
+      gap: 12px;
+      margin-bottom: 10px;
     }
 
     .copy {
+      font-family: var(--mono);
+      font-size: 12px;
       border: 1px solid var(--border);
-      border-radius: 999px;
-      background: rgba(255,255,255,0.03);
-      color: var(--text);
-      padding: 9px 13px;
+      background: transparent;
+      color: var(--muted-2);
+      padding: 6px 12px;
+      border-radius: var(--radius);
       cursor: pointer;
-      font-weight: 700;
+      transition: 120ms;
+    }
+
+    .copy:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--panel);
     }
 
     .command {
       position: relative;
       overflow: hidden;
-      background: #0a0e14;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 22px;
-      padding: 18px 18px 18px 20px;
-      margin-bottom: 14px;
+      background: #070909;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 16px 16px 20px;
+      margin-bottom: 16px;
     }
 
     .command::before {
-      content: "";
+      content: '';
       position: absolute;
       inset: 0 auto 0 0;
-      width: 4px;
-      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      width: 3px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(51, 204, 102, 0.5);
     }
 
     pre {
       margin: 0;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--accent-2);
       white-space: pre-wrap;
       word-break: break-word;
-      font-family: var(--mono);
-      font-size: 15px;
-      line-height: 1.65;
     }
 
     .install-notes {
       display: grid;
-      gap: 12px;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      align-content: start;
     }
+
+    .mono {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--muted-2);
+    }
+
+    /* ── EXAMPLES ───────────────────────────────────────── */
 
     .example-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 16px;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
     }
 
     @media (max-width: 980px) {
@@ -399,39 +529,67 @@
     }
 
     .example-card {
-      padding: 18px;
+      padding: 24px;
       display: grid;
-      gap: 10px;
+      gap: 12px;
+      align-content: start;
+      background: var(--bg);
     }
 
     .example-card strong {
-      font-size: 1rem;
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 700;
     }
+
+    .example-card strong::before { content: '> '; color: var(--muted); font-weight: 400; }
 
     .example-card p {
       margin: 0;
-      color: var(--muted);
-      line-height: 1.6;
-      min-height: 3.4em;
+      color: var(--muted-2);
+      line-height: 1.65;
+      font-size: 13px;
     }
 
-    .mono { font-family: var(--mono); font-size: 14px; }
+    .example-card .mono {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      padding: 10px 14px;
+      background: #070909;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .example-card .mono::before { content: '$ '; color: var(--muted); }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
 
     footer {
-      margin-top: 26px;
+      margin-top: 88px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: 12px;
       display: flex;
       justify-content: space-between;
-      gap: 18px;
+      gap: 16px;
       flex-wrap: wrap;
     }
+
+    footer a { color: var(--muted-2); }
+    footer a:hover { color: var(--accent); text-decoration: none; }
   </style>
 </head>
-<body class="shell-noise">
+<body>
   <div class="wrap">
+
     <header class="topbar">
-      <div class="brand"><span class="dot"></span> pls — ask your computer nicely</div>
+      <div class="brand">
+        <span class="brand-prompt">$</span>
+        pls
+        <span class="brand-tagline">— ask your computer nicely</span>
+      </div>
       <nav class="nav">
         <a href="#install">Install</a>
         <a href="#examples">Examples</a>
@@ -442,12 +600,13 @@
 
     <section class="hero">
       <div class="hero-copy">
-        <span class="eyebrow">Natural-language shell command suggester</span>
-        <h1>Ask for the command you mean — not the syntax you forgot.</h1>
+        <span class="eyebrow">natural-language shell command suggester</span>
+        <h1>Ask for the command you mean — not the syntax you forgot.<span class="cursor"></span></h1>
         <p>
-          <strong style="color: var(--text); font-weight: 700;">pls</strong> turns plain English into useful shell commands,
-          explains what they do, rates the risk, and can ask before running them. It’s part helper, part translator,
-          part gentle social experiment in being nice to your computer.
+          <strong>pls</strong> turns plain English into useful shell commands,
+          explains what they do, rates the risk, and asks before running them.
+          It's part helper, part translator, part gentle social experiment
+          in being nice to your computer.
         </p>
         <div class="hero-actions">
           <a class="btn primary" href="#install">Install pls</a>
@@ -464,10 +623,10 @@
           </div>
           <div class="terminal-body"><span class="prompt">$</span> <span class="cmd">pls check if jellyfin is running</span>
 
-<span class="dim">Command:</span> systemctl is-active jellyfin
-<span class="dim">Risk:</span> <span class="risk">low</span>
+<span class="dim">Command:</span>   systemctl is-active jellyfin
+<span class="dim">Risk:</span>      <span class="risk">low</span>
 <span class="dim">Execution:</span> asks before running in an interactive terminal
-<span class="dim">Run it?</span> [y/N]</div>
+<span class="dim">Run it?</span>   [y/N]</div>
         </div>
 
         <div class="mini-grid">
@@ -487,13 +646,15 @@
       </div>
     </section>
 
-    <section id="install" class="section section-card">
+    <section id="install" class="section">
       <div class="section-head">
         <div>
           <h2>Install it the way you already work.</h2>
         </div>
         <p>
-          Pick the install path that fits your machine best: Homebrew on macOS, Scoop on Windows, or GitHub Releases and <code>go install</code> when that fits better.
+          Pick the install path that fits your machine best: Homebrew on macOS,
+          Scoop on Windows, or GitHub Releases and <code>go install</code> when
+          that fits better.
         </p>
       </div>
 
@@ -507,9 +668,7 @@
           </div>
 
           <div class="copy-row">
-            <div>
-              <div class="label" id="label">Recommended for macOS</div>
-            </div>
+            <div class="label" id="label">Recommended for macOS</div>
             <button class="copy" id="copyBtn">Copy command</button>
           </div>
 
@@ -518,7 +677,7 @@
 brew install pls</pre>
           </div>
 
-          <div class="mono" id="description" style="color: var(--muted);">
+          <div class="mono" id="description" style="color: var(--muted-2);">
             Best native path if you already use Homebrew.
           </div>
         </div>
@@ -540,13 +699,14 @@ brew install pls</pre>
       </div>
     </section>
 
-    <section id="examples" class="section section-card">
+    <section id="examples" class="section">
       <div class="section-head">
         <div>
           <h2>What it feels like</h2>
         </div>
         <p>
-          `pls` is at its best when you know what you want done but do not feel like reconstructing the exact command syntax from scratch.
+          <code>pls</code> is at its best when you know what you want done
+          but do not feel like reconstructing the exact command syntax from scratch.
         </p>
       </div>
 
@@ -570,9 +730,10 @@ brew install pls</pre>
     </section>
 
     <footer>
-      <span>Demo model in the README GIF: Ollama + Qwen3.5 4B on an RTX 3070.</span>
+      <span>MIT License - EXPERIMENTAL</span>
       <span>GitHub: <a href="https://github.com/drumline18/pls">drumline18/pls</a></span>
     </footer>
+
   </div>
 
   <script>
@@ -599,30 +760,30 @@ brew install pls</pre>
       }
     };
 
-    const tabs = document.querySelectorAll('.tab');
-    const label = document.getElementById('label');
-    const command = document.getElementById('command');
-    const description = document.getElementById('description');
-    const copyBtn = document.getElementById('copyBtn');
+    const tabs      = document.querySelectorAll('.tab');
+    const label     = document.getElementById('label');
+    const command   = document.getElementById('command');
+    const desc      = document.getElementById('description');
+    const copyBtn   = document.getElementById('copyBtn');
 
     function setTab(key) {
       const current = options[key];
-      tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.target === key));
-      label.textContent = current.label;
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.target === key));
+      label.textContent   = current.label;
       command.textContent = current.command;
-      description.textContent = current.description;
+      desc.textContent    = current.description;
       copyBtn.dataset.command = current.command;
     }
 
-    tabs.forEach(tab => tab.addEventListener('click', () => setTab(tab.dataset.target)));
+    tabs.forEach(t => t.addEventListener('click', () => setTab(t.dataset.target)));
 
     copyBtn.addEventListener('click', async () => {
       const text = copyBtn.dataset.command || command.textContent;
       try {
         await navigator.clipboard.writeText(text);
-        const before = copyBtn.textContent;
+        const prev = copyBtn.textContent;
         copyBtn.textContent = 'Copied';
-        setTimeout(() => copyBtn.textContent = before, 1200);
+        setTimeout(() => copyBtn.textContent = prev, 1200);
       } catch {
         copyBtn.textContent = 'Copy failed';
         setTimeout(() => copyBtn.textContent = 'Copy command', 1200);
@@ -630,6 +791,47 @@ brew install pls</pre>
     });
 
     setTab('macos');
+  </script>
+
+  <script>
+    // Hero heading typewriter animation
+    (function () {
+      const h1     = document.querySelector('.hero-copy h1');
+      const cursor = h1.querySelector('.cursor');
+
+      // Capture the raw text from the first child text node
+      const text = h1.childNodes[0].textContent;
+
+      // Lock the h1 to its fully-rendered height before clearing content
+      // so the paragraph and CTAs below never shift during typing
+      h1.style.minHeight = h1.offsetHeight + 'px';
+
+      // Rebuild h1: empty span for typed text + cursor
+      const typed = document.createElement('span');
+      while (h1.firstChild) h1.removeChild(h1.firstChild);
+      h1.appendChild(typed);
+      h1.appendChild(cursor);
+
+      // Hold cursor solid (no blink) while typing
+      cursor.style.animation = 'none';
+      cursor.style.opacity   = '1';
+
+      let i = 0;
+      function tick() {
+        if (i < text.length) {
+          typed.textContent += text[i++];
+          setTimeout(tick, 22);
+        } else {
+          // Restore blinking cursor once typing is complete
+          cursor.style.animation = '';
+          cursor.style.opacity   = '';
+          // Release the reserved height so resizing the window doesn't leave a gap
+          h1.style.minHeight = '';
+        }
+      }
+
+      tick();
+    }());
   </script>
 </body>
 </html>
