@@ -7,32 +7,37 @@ Set FontSize 28
 Set TypingSpeed 35ms
 Set WaitTimeout 20s
 
-# Put the freshly built binary on PATH so the demo can use plain `pls`.
-Type "export PATH=$PWD/bin:$PATH"
+# Hidden bootstrap so the visible demo starts clean.
+Hide
+Type "mkdir -p $HOME/.cache/pls-vhs-demo"
 Enter
-Sleep 400ms
+Type "touch $HOME/.cache/pls-vhs-demo/.alpha $HOME/.cache/pls-vhs-demo/.beta"
+Enter
+Type "cd $HOME/.cache/pls-vhs-demo"
+Enter
 Type "clear"
 Enter
+Show
 Sleep 300ms
 
-# Show natural language -> command -> confirmation.
+# Show natural language -> command -> confirmation -> real execution.
 Type "pls list all dotfiles in the current directory"
 Enter
 Wait+Screen /Run it\?/
-Sleep 1500ms
-Type "n"
+Sleep 1200ms
+Type "y"
 Enter
-Sleep 700ms
+Sleep 2200ms
 
 Type "clear"
 Enter
 Sleep 300ms
 
-# Show a second plain-language example with the same confirmation flow.
+# Show a second plain-language example that executes and returns a real status.
 Type "pls check if jellyfin is running"
 Enter
 Wait+Screen /Run it\?/
-Sleep 1700ms
-Type "n"
+Sleep 1400ms
+Type "y"
 Enter
-Sleep 900ms
+Sleep 2400ms

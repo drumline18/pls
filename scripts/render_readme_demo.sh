@@ -3,11 +3,12 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-mkdir -p assets
+mkdir -p assets "$HOME/.local/bin"
 rm -f assets/pls-demo.webm assets/pls-demo.gif assets/pls-demo-palette.png
 
 ngo=${GO:-go}
 "$ngo" build -o bin/pls ./cmd/pls
+ln -sf "$PWD/bin/pls" "$HOME/.local/bin/pls"
 VHS_NO_SANDBOX=1 vhs demo/readme.tape
 
 ffmpeg -y -i assets/pls-demo.webm -vf "fps=12,scale=1200:-1:flags=lanczos,palettegen" assets/pls-demo-palette.png
