@@ -19,7 +19,7 @@ import (
 const (
 	defaultOpenAIModel = "gpt-4.1-mini"
 	defaultOpenAIHost  = "https://api.openai.com"
-	defaultOllamaModel = "qwen2.5-coder:7b-instruct-q4_K_M"
+	defaultOllamaModel = "qwen3.5:4b"
 	defaultOllamaHost  = "http://127.0.0.1:11434"
 )
 

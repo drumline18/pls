@@ -17,7 +17,7 @@ func TestParseArgsCapturesFreeformRequestWithoutQuotes(t *testing.T) {
 }
 
 func TestParseArgsSupportsKnownFlagsAndFreeformTail(t *testing.T) {
-	parsed, err := ParseArgs([]string{"--provider", "ollama", "--model", "qwen2.5-coder:7b-instruct-q4_K_M", "show", "hidden", "files"})
+	parsed, err := ParseArgs([]string{"--provider", "ollama", "--model", "qwen3.5:4b", "show", "hidden", "files"})
 	if err != nil {
 		t.Fatalf("ParseArgs returned error: %v", err)
 	}
@@ -25,7 +25,7 @@ func TestParseArgsSupportsKnownFlagsAndFreeformTail(t *testing.T) {
 	if parsed.Flags.Provider != "ollama" {
 		t.Fatalf("unexpected provider: %s", parsed.Flags.Provider)
 	}
-	if parsed.Flags.Model != "qwen2.5-coder:7b-instruct-q4_K_M" {
+	if parsed.Flags.Model != "qwen3.5:4b" {
 		t.Fatalf("unexpected model: %s", parsed.Flags.Model)
 	}
 }

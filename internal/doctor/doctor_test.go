@@ -20,7 +20,7 @@ func TestHumanIncludesJokeAndConfigSections(t *testing.T) {
 		YoloMode:             true,
 		YoloSource:           "local",
 		Provider:             "ollama",
-		Model:                "qwen2.5-coder:7b-instruct-q4_K_M",
+		Model:                "qwen3.5:4b",
 		Host:                 "http://127.0.0.1:11434",
 		Shell:                "bash",
 		OS:                   "linux",

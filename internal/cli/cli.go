@@ -29,7 +29,7 @@ Usage:
   pls --yes show hidden files here
   pls --no-exec prefix all jpgs with vacation-
   pls --provider openai --model gpt-4.1-mini show hidden files here
-  pls --provider ollama --model qwen2.5-coder:7b-instruct-q4_K_M list large files in this directory
+  pls --provider ollama --model qwen3.5:4b list large files in this directory
   pls --json find files bigger than 500mb
   pls --print-config-path
   pls -- show me files named --json

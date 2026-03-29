@@ -22,7 +22,7 @@ func TestRunReportsEffectiveConfigAndPaths(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(globalPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
-	if err := os.WriteFile(globalPath, []byte(`{"provider":"ollama","model":"qwen2.5-coder:7b-instruct-q4_K_M","host":"http://192.168.2.166:11434","yoloMode":false}`), 0o644); err != nil {
+	if err := os.WriteFile(globalPath, []byte(`{"provider":"ollama","model":"qwen3.5:4b","host":"http://192.168.2.166:11434","yoloMode":false}`), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
@@ -69,7 +69,7 @@ func TestHumanIncludesKeyFields(t *testing.T) {
 		LocalConfigPath:        "/tmp/project/pls.json",
 		LocalConfigExists:      true,
 		EffectiveProvider:      "ollama",
-		EffectiveModel:         "qwen2.5-coder:7b-instruct-q4_K_M",
+		EffectiveModel:         "qwen3.5:4b",
 		EffectiveHost:          "http://127.0.0.1:11434",
 		ConfigStoredAPIKeyConfigured: false,
 		YoloMode:               true,

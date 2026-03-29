@@ -176,7 +176,7 @@ func defaultModelFor(provider string) (string, error) {
 	case "openai":
 		return "gpt-4.1-mini", nil
 	case "ollama":
-		return "qwen2.5-coder:7b-instruct-q4_K_M", nil
+		return "qwen3.5:4b", nil
 	case "anthropic":
 		return "claude-3-5-haiku-latest", nil
 	case "gemini":

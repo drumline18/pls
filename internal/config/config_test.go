@@ -35,7 +35,7 @@ func TestDefaultPathWithoutConfigFallsBackToOllama(t *testing.T) {
 	if cfg.Provider != "ollama" {
 		t.Fatalf("unexpected provider: %s", cfg.Provider)
 	}
-	if cfg.Model != "qwen2.5-coder:7b-instruct-q4_K_M" {
+	if cfg.Model != "qwen3.5:4b" {
 		t.Fatalf("unexpected model: %s", cfg.Model)
 	}
 	if want := filepath.Join(home, ".config", "pls", "config.json"); cfg.ConfigPath != want {
@@ -86,14 +86,14 @@ func TestFlagsOverrideConfigFile(t *testing.T) {
 
 	cfg, err := Load(types.Flags{
 		ConfigPath: configPath,
-		Model:      "qwen2.5-coder:7b-instruct-q4_K_M",
+		Model:      "qwen3.5:4b",
 		Host:       "http://127.0.0.1:11434",
 	})
 	if err != nil {
 		t.Fatalf("Load returned error: %v", err)
 	}
 
-	if cfg.Model != "qwen2.5-coder:7b-instruct-q4_K_M" {
+	if cfg.Model != "qwen3.5:4b" {
 		t.Fatalf("unexpected model: %s", cfg.Model)
 	}
 	if cfg.Host != "http://127.0.0.1:11434" {
@@ -119,7 +119,7 @@ func TestLocalConfigOverridesGlobalConfig(t *testing.T) {
 	if err := os.MkdirAll(nested, 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
-	if err := os.WriteFile(filepath.Join(projectRoot, "pls.json"), []byte(`{"model":"qwen2.5-coder:7b-instruct-q4_K_M","host":"http://192.168.2.166:11434","yoloMode":true}`), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(projectRoot, "pls.json"), []byte(`{"model":"qwen3.5:4b","host":"http://192.168.2.166:11434","yoloMode":true}`), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
@@ -137,7 +137,7 @@ func TestLocalConfigOverridesGlobalConfig(t *testing.T) {
 		t.Fatalf("Load returned error: %v", err)
 	}
 
-	if cfg.Model != "qwen2.5-coder:7b-instruct-q4_K_M" {
+	if cfg.Model != "qwen3.5:4b" {
 		t.Fatalf("unexpected model: %s", cfg.Model)
 	}
 	if cfg.Host != "http://192.168.2.166:11434" {

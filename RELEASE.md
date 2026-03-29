@@ -1,81 +1,63 @@
-# Release & Open-Source Prep
+# Release Notes
 
-This repo is now public, but packaged releases and distribution channels are still being prepared.
+`pls` is now public and has an initial release:
 
-## Chosen public settings
-
-- public repo: `github.com/drumline18/pls`
-- module path: `github.com/drumline18/pls`
+- repo: `github.com/drumline18/pls`
+- current release: `v0.1.0`
 - license: MIT
-- recommended first tag: `v0.1.0`
 
-## Already prepared
+## Live distribution channels
 
-- `go.mod` uses `github.com/drumline18/pls`
-- MIT `LICENSE` added
-- CI workflow for tests on Go 1.26.1
-- GoReleaser config for cross-platform archives
-- local GoReleaser snapshot dry-run succeeded
-- contributor / security / issue / PR templates
-- README notes for install and release expectations
-- Homebrew / Scoop packaging templates under `packaging/`
+- GitHub repo: <https://github.com/drumline18/pls>
+- GitHub Releases: <https://github.com/drumline18/pls/releases>
+- Homebrew tap: <https://github.com/drumline18/homebrew-tap>
+- Scoop bucket: <https://github.com/drumline18/scoop-bucket>
 
-## Remaining steps before packaged release
+## Install targets
 
-### 1) Tag the first release
-
-Recommended starting point:
-
-```text
-v0.1.0
-```
-
-### 2) Create the first public release artifacts
-
-Use GoReleaser to produce draft or published release artifacts after the repo is tagged.
-
-### 3) Create package-manager repos when ready
-
-Planned names:
-- Homebrew tap: `drumline18/homebrew-tap`
-- Scoop bucket: `drumline18/scoop-bucket`
-
-## Suggested first packaged-release sequence
-
-1. Verify CI on `drumline18/pls`
-2. Create tag `v0.1.0`
-3. Run GoReleaser to create draft release artifacts
-4. Review release notes, checksums, and archives
-5. Publish the release
-6. Create `drumline18/homebrew-tap` and `drumline18/scoop-bucket`
-7. Fill in the templates from `packaging/`
-8. Publish package-manager entries
-
-## Public install target
-
-Once the repo is live, the intended Go install command is:
+### Go install
 
 ```bash
 go install github.com/drumline18/pls/cmd/pls@latest
 ```
 
-## Local dry-run commands
+### Homebrew
 
-Run tests:
+```bash
+brew tap drumline18/tap
+brew install pls
+```
+
+### Scoop
+
+```powershell
+scoop bucket add drumline18 https://github.com/drumline18/scoop-bucket
+scoop install pls
+```
+
+## What exists in-repo for future releases
+
+- GoReleaser config for cross-platform archives
+- CI workflow for Go 1.26.1
+- packaging templates under `packaging/`
+- package rendering helper: `scripts/render_packaging.py`
+
+## Future release flow
+
+For the next release after `v0.1.0`, the rough flow is:
+
+1. push the latest `pls` subtree to `drumline18/pls`
+2. create and push a new tag
+3. run GoReleaser against the public repo
+4. publish the GitHub release
+5. regenerate Homebrew/Scoop package files from the new checksums
+6. update the tap and bucket repos
+
+## Local dry-run commands
 
 ```bash
 make test
-```
-
-Build locally:
-
-```bash
 make build
-```
-
-Create a local snapshot build:
-
-```bash
 make release-snapshot
 ```
 
@@ -84,10 +66,3 @@ or directly:
 ```bash
 goreleaser release --snapshot --clean --config .goreleaser.yaml --skip=publish,announce,sign
 ```
-
-## Packaging templates
-
-See:
-- `packaging/README.md`
-- `packaging/homebrew/pls.rb.tmpl`
-- `packaging/scoop/pls.json.tmpl`

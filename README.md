@@ -77,15 +77,39 @@ cd pls
 go build -o bin/pls ./cmd/pls
 ```
 
+### Homebrew
+
+```bash
+brew tap drumline18/tap
+brew install pls
+```
+
+### Scoop
+
+```powershell
+scoop bucket add drumline18 https://github.com/drumline18/scoop-bucket
+scoop install pls
+```
+
+### Release archives
+
+Prebuilt binaries are also available from GitHub Releases:
+
+- <https://github.com/drumline18/pls/releases>
+
 ### Distribution status
 
 Current state:
 - GitHub repo is live
 - `go install github.com/drumline18/pls/cmd/pls@latest` works
-- GitHub Releases / packaged binaries are the next release task
-- Homebrew and Scoop are planned, but not published yet
+- GitHub Releases are live
+- Homebrew tap is live
+- Scoop bucket is live
 
-So right now the best install path is `go install` or building from source.
+Install links:
+- Releases: <https://github.com/drumline18/pls/releases>
+- Homebrew tap: <https://github.com/drumline18/homebrew-tap>
+- Scoop bucket: <https://github.com/drumline18/scoop-bucket>
 
 ## Quick start
 
