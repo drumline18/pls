@@ -36,6 +36,18 @@ They are here so `pls` is ready for package-manager distribution once the public
    - `__WINDOWS_AMD64_SHA256__`
 4. Commit to the bucket repo
 
+## Rendering generated package files
+
+After a real tagged release exists and `dist/checksums.txt` is available, render the files with:
+
+```bash
+python3 scripts/render_packaging.py --version v0.1.0 --checksums dist/checksums.txt
+```
+
+That writes:
+- `packaging/generated/homebrew/pls.rb`
+- `packaging/generated/scoop/pls.json`
+
 ## Notes
 
 The current GoReleaser setup already produces the release archives and checksums these templates expect.
