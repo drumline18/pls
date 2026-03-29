@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pls — install</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: rgba(255,255,255,0.05);
+      --panel-strong: rgba(255,255,255,0.08);
+      --text: #f4efe6;
+      --muted: #b7ad9f;
+      --accent: #92f3a7;
+      --accent-2: #7cc6ff;
+      --border: rgba(255,255,255,0.12);
+      --shadow: 0 24px 80px rgba(0,0,0,0.35);
+      --radius: 24px;
+      --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      --sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124,198,255,0.18), transparent 35%),
+        radial-gradient(circle at top right, rgba(146,243,167,0.14), transparent 28%),
+        linear-gradient(180deg, #11161f 0%, #0d1117 100%);
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 64px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 34px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      width: fit-content;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.03);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.6rem, 6vw, 5rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .lede {
+      max-width: 760px;
+      font-size: 1.12rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .install-card {
+      padding: 24px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 160ms ease;
+      font-weight: 600;
+    }
+
+    .tab:hover { transform: translateY(-1px); }
+    .tab.active {
+      background: linear-gradient(135deg, rgba(146,243,167,0.18), rgba(124,198,255,0.16));
+      border-color: rgba(146,243,167,0.45);
+    }
+
+    .label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: var(--mono);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .command {
+      position: relative;
+      overflow: hidden;
+      background: #0a0e14;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 18px 18px 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .command::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+    }
+
+    .copy-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .copy {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .notes {
+      display: grid;
+      gap: 14px;
+      padding: 24px;
+    }
+
+    .note {
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: var(--panel-strong);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .note strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .links a {
+      color: var(--text);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .footer {
+      margin-top: 26px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <span class="eyebrow">pls — ask your computer nicely</span>
+      <h1>Install it the way you already work.</h1>
+      <p class="lede">
+        `pls` is a natural-language shell command suggester. Pick the install path that fits your machine,
+        or use one familiar cross-platform command if that’s your style.
+      </p>
+    </section>
+
+    <section class="grid">
+      <div class="card install-card">
+        <div class="tabs" id="tabs">
+          <button class="tab active" data-target="macos">macOS</button>
+          <button class="tab" data-target="linux">Linux</button>
+          <button class="tab" data-target="windows">Windows</button>
+          <button class="tab" data-target="universal">Works everywhere</button>
+        </div>
+
+        <div class="copy-row">
+          <div>
+            <div class="label" id="label">Recommended for macOS</div>
+          </div>
+          <button class="copy" id="copyBtn">Copy command</button>
+        </div>
+
+        <div class="command">
+          <pre id="command">brew tap drumline18/tap
+brew install pls</pre>
+        </div>
+
+        <div class="footer" id="description">
+          Best native path if you already use Homebrew.
+        </div>
+
+        <div class="links">
+          <a href="https://github.com/drumline18/pls">Repository</a>
+          <a href="https://github.com/drumline18/pls/releases">GitHub Releases</a>
+          <a href="https://github.com/drumline18/homebrew-tap">Homebrew tap</a>
+          <a href="https://github.com/drumline18/scoop-bucket">Scoop bucket</a>
+        </div>
+      </div>
+
+      <aside class="card notes">
+        <div class="note">
+          <strong>Recommended for your OS</strong>
+          Use Homebrew on macOS, Scoop on Windows, and GitHub Releases or `go install` on Linux.
+        </div>
+        <div class="note">
+          <strong>Works everywhere</strong>
+          If npm distribution lands, this page can offer one universal install command for users who already have Node.js.
+        </div>
+        <div class="note">
+          <strong>Current state</strong>
+          GitHub Releases, Homebrew, Scoop, and `go install` are already live for `pls`.
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <script>
+    const options = {
+      macos: {
+        label: 'Recommended for macOS',
+        command: 'brew tap drumline18/tap\nbrew install pls',
+        description: 'Best native path if you already use Homebrew.'
+      },
+      linux: {
+        label: 'Recommended for Linux',
+        command: 'go install github.com/drumline18/pls/cmd/pls@latest',
+        description: 'Simple and direct if you already have Go installed. Release binaries are also available.'
+      },
+      windows: {
+        label: 'Recommended for Windows',
+        command: 'scoop bucket add drumline18 https://github.com/drumline18/scoop-bucket\nscoop install pls',
+        description: 'Best native path on Windows if you already use Scoop.'
+      },
+      universal: {
+        label: 'Works everywhere',
+        command: 'npm install -g @drumline18/pls',
+        description: 'This is the ideal universal install story if npm distribution is added.'
+      }
+    };
+
+    const tabs = document.querySelectorAll('.tab');
+    const label = document.getElementById('label');
+    const command = document.getElementById('command');
+    const description = document.getElementById('description');
+    const copyBtn = document.getElementById('copyBtn');
+
+    function setTab(key) {
+      const current = options[key];
+      tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.target === key));
+      label.textContent = current.label;
+      command.textContent = current.command;
+      description.textContent = current.description;
+      copyBtn.dataset.command = current.command;
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => setTab(tab.dataset.target));
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const text = copyBtn.dataset.command || command.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        const previous = copyBtn.textContent;
+        copyBtn.textContent = 'Copied';
+        setTimeout(() => copyBtn.textContent = previous, 1200);
+      } catch {
+        copyBtn.textContent = 'Copy failed';
+        setTimeout(() => copyBtn.textContent = 'Copy command', 1200);
+      }
+    });
+
+    setTab('macos');
+  </script>
+</body>
+</html>

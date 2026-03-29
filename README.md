@@ -36,68 +36,81 @@ You know what you want. You just do not always want to stop and reconstruct the 
 ## Install
 
 > [!WARNING]
-> `pls` does not run commands by default, but AI output can be wrong or harmful. Use at your own risk.
+> `pls` does not run commands by default, but AI output can still be wrong or harmful. Review commands before running them.
 
-### Fastest install from GitHub
+### Recommended for your OS
 
-If you already have Go 1.25+:
-
-```bash
-go install github.com/drumline18/pls/cmd/pls@latest
-```
-
-That installs the `pls` binary into your Go bin directory.
-
-> If `pls` isn't found afterwards, make sure `$HOME/go/bin` is on your `PATH`.
-
-### Homebrew (MacOS)
+**macOS**
 
 ```bash
 brew tap drumline18/tap
 brew install pls
 ```
 
-### Scoop (Windows)
+**Windows**
 
 ```powershell
 scoop bucket add drumline18 https://github.com/drumline18/scoop-bucket
 scoop install pls
 ```
 
-### Install from a local clone
-*With `make` :*
+**Linux / Go already installed**
+
+```bash
+go install github.com/drumline18/pls/cmd/pls@latest
+```
+
+> If `pls` is not found afterwards, make sure `$HOME/go/bin` is on your `PATH`.
+
+### Works everywhere
+
+The most promising universal install story is npm:
+
+```bash
+npm install -g @drumline18/pls
+```
+
+That npm path is **planned**, not live yet.
+
+See `NPM.md` for the distribution plan.
+
+### Other install methods
+
+**GitHub Releases**
+- <https://github.com/drumline18/pls/releases>
+
+**Local clone with `make`**
+
 ```bash
 git clone https://github.com/drumline18/pls.git
 cd pls
 make install
-# Installs to ~/.local/bin/pls
+# installs to ~/.local/bin/pls
 ```
-*With Go :*
+
+**Local clone with Go**
+
 ```bash
 git clone https://github.com/drumline18/pls.git
 cd pls
 go build -o bin/pls ./cmd/pls
 ```
 
-### Release archives
-
-Prebuilt binaries are also available from GitHub Releases:
-
-- <https://github.com/drumline18/pls/releases>
-
 ### Distribution status
 
 Current state:
 - GitHub repo is live
-- `go install github.com/drumline18/pls/cmd/pls@latest` works
 - GitHub Releases are live
 - Homebrew tap is live
 - Scoop bucket is live
+- `go install github.com/drumline18/pls/cmd/pls@latest` works
+- npm is being considered as the future cross-platform one-command installer
 
 Install links:
 - Releases: <https://github.com/drumline18/pls/releases>
 - Homebrew tap: <https://github.com/drumline18/homebrew-tap>
 - Scoop bucket: <https://github.com/drumline18/scoop-bucket>
+- Install page mockup: `website/install.html`
 
 ## Quick start
 
