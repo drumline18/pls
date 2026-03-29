@@ -112,6 +112,8 @@ pls config init
 
 That lets you choose a provider, model, host, and optional execution behavior.
 
+You can rerun `pls setup` anytime later if you want to switch providers, change models, or update the host/base URL.
+
 Then try something simple:
 
 ```bash
@@ -126,7 +128,7 @@ The normal `pls` flow is just: say what you want, get a command back.
 
 Natural-language examples:
 
-```bash
+```
 pls show me all dotfiles in this directory
 pls check if jellyfin is running
 pls find files bigger than 500mb under the current directory
@@ -276,7 +278,7 @@ Behavior:
 - the global wizard can set provider / model / host for any supported provider
 - OpenAI can optionally store an API key in global config
 - non-OpenAI hosted providers use their usual environment variable for credentials
-- the local wizard can override provider / model / host / yolo mode, but never stores API keys locally
+- the **local** wizard can override provider / model / host / yolo mode, but never stores API keys locally
 
 ### Ollama
 
