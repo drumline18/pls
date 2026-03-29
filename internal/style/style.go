@@ -16,7 +16,45 @@ var psGrepPattern = regexp.MustCompile(`(?i)^ps\b.*\|\s*grep\b.*$`)
 var serviceRequestPattern = regexp.MustCompile(`(?i)^(?:check\s+if|is|whether)\s+([a-z0-9_.@-]+)\s+(?:service\s+)?(?:is\s+)?running\b`)
 var prefixRequestPattern = regexp.MustCompile(`(?i)^prefix all (?:the )?([a-z0-9*_.-]+?)s?\s+with\s+(.+)$`)
 var moveIntoFolderRequestPattern = regexp.MustCompile(`(?i)^move all (?:the )?([a-z0-9*_.-]+?)s?\s+files?\s+into\s+(?:a |an |the )?(.+?)\s+folder$`)
+var biggerThanPattern = regexp.MustCompile(`(?i)^find files bigger than\s+(\d+)\s*(kb|mb|gb|tb)\s+under the current directory$`)
+var biggestFilesPattern = regexp.MustCompile(`(?i)^show\s+(?:the\s+)?(\d+)\s+biggest files under the current directory$`)
 var safeExtensionPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]*$`)
+
+func DirectSuggestion(request string, runtimeContext types.RuntimeContext) (types.Suggestion, bool) {
+	requestTrimmed := strings.TrimSpace(request)
+	requestLower := strings.ToLower(requestTrimmed)
+	if runtimeContext.OS != "linux" {
+		return types.Suggestion{}, false
+	}
+
+	if match := biggerThanPattern.FindStringSubmatch(requestLower); len(match) == 3 {
+		return types.Suggestion{
+			Command:              "find . -type f -size +" + match[1] + sizeSuffix(match[2]) + " -print",
+			Explanation:          "Recursively lists files larger than " + match[1] + strings.ToUpper(match[2]) + " under the current directory.",
+			Risk:                 "low",
+			RequiresConfirmation: false,
+			NeedsClarification:   false,
+			Notes:                "This treats 'under the current directory' as recursive scope.",
+			Platform:             "linux",
+			Refused:              false,
+		}, true
+	}
+
+	if match := biggestFilesPattern.FindStringSubmatch(requestLower); len(match) == 2 {
+		return types.Suggestion{
+			Command:              "find . -type f -printf '%s %p\\n' | sort -rn | head -" + match[1],
+			Explanation:          "Recursively lists the " + match[1] + " largest files under the current directory, sorted by size in bytes.",
+			Risk:                 "low",
+			RequiresConfirmation: false,
+			NeedsClarification:   false,
+			Notes:                "This defaults to byte counts when the user did not request a human-readable format.",
+			Platform:             "linux",
+			Refused:              false,
+		}, true
+	}
+
+	return types.Suggestion{}, false
+}
 
 func Normalize(request string, runtimeContext types.RuntimeContext, suggestion types.Suggestion) types.Suggestion {
 	requestTrimmed := strings.TrimSpace(request)
@@ -268,6 +306,21 @@ func extensionFromToken(token string) (string, bool) {
 	}
 
 	return value, true
+}
+
+func sizeSuffix(unit string) string {
+	switch strings.ToLower(strings.TrimSpace(unit)) {
+	case "kb":
+		return "k"
+	case "mb":
+		return "M"
+	case "gb":
+		return "G"
+	case "tb":
+		return "T"
+	default:
+		return ""
+	}
 }
 
 func escapeDoubleQuoted(value string) string {

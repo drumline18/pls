@@ -11,6 +11,10 @@ import (
 )
 
 func GenerateSuggestion(ctx context.Context, request string, runtimeContext types.RuntimeContext, cfg types.Config) (types.Suggestion, error) {
+	if direct, ok := style.DirectSuggestion(request, runtimeContext); ok {
+		return policy.Apply(direct), nil
+	}
+
 	messages := prompt.Build(request, runtimeContext)
 	raw, err := providers.Generate(ctx, cfg, messages)
 	if err != nil {

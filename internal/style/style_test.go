@@ -97,6 +97,29 @@ func TestNormalizeMoveIntoFolderUsesGuardedLoop(t *testing.T) {
 	}
 }
 
+func TestDirectSuggestionHandlesFindFilesBiggerThan(t *testing.T) {
+	suggestion, ok := DirectSuggestion("find files bigger than 500mb under the current directory", types.RuntimeContext{OS: "linux"})
+	if !ok {
+		t.Fatal("expected direct suggestion")
+	}
+	if suggestion.Command != "find . -type f -size +500M -print" {
+		t.Fatalf("unexpected command: %s", suggestion.Command)
+	}
+	if suggestion.Risk != "low" {
+		t.Fatalf("unexpected risk: %s", suggestion.Risk)
+	}
+}
+
+func TestDirectSuggestionHandlesBiggestFiles(t *testing.T) {
+	suggestion, ok := DirectSuggestion("show the 10 biggest files under the current directory", types.RuntimeContext{OS: "linux"})
+	if !ok {
+		t.Fatal("expected direct suggestion")
+	}
+	if suggestion.Command != "find . -type f -printf '%s %p\\n' | sort -rn | head -10" {
+		t.Fatalf("unexpected command: %s", suggestion.Command)
+	}
+}
+
 func TestNormalizeLeavesUnrelatedCommandsAlone(t *testing.T) {
 	original := types.Suggestion{
 		Command:     "ss -ltnp 'sport = :3000'",

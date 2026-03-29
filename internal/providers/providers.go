@@ -4,8 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
 	"strings"
 
+	"github.com/drumline18/pls/internal/types"
+	"github.com/drumline18/pls/internal/util"
 	anyllm "github.com/mozilla-ai/any-llm-go"
 	"github.com/mozilla-ai/any-llm-go/providers/anthropic"
 	"github.com/mozilla-ai/any-llm-go/providers/deepseek"
@@ -17,11 +21,14 @@ import (
 	"github.com/mozilla-ai/any-llm-go/providers/ollama"
 	"github.com/mozilla-ai/any-llm-go/providers/openai"
 	"github.com/mozilla-ai/any-llm-go/providers/zai"
-	"github.com/drumline18/pls/internal/types"
-	"github.com/drumline18/pls/internal/util"
+	ollamaapi "github.com/ollama/ollama/api"
 )
 
 func Generate(ctx context.Context, cfg types.Config, messages types.Messages) (types.Suggestion, error) {
+	if strings.EqualFold(strings.TrimSpace(cfg.Provider), "ollama") {
+		return generateOllama(ctx, cfg, messages)
+	}
+
 	provider, err := buildProvider(cfg)
 	if err != nil {
 		return types.Suggestion{}, err
@@ -57,6 +64,78 @@ func Generate(ctx context.Context, cfg types.Config, messages types.Messages) (t
 	}
 
 	return suggestion, nil
+}
+
+func generateOllama(ctx context.Context, cfg types.Config, messages types.Messages) (types.Suggestion, error) {
+	baseURL := strings.TrimSpace(cfg.Host)
+	if baseURL == "" {
+		baseURL = "http://127.0.0.1:11434"
+	}
+	parsedURL, err := url.Parse(baseURL)
+	if err != nil {
+		return types.Suggestion{}, fmt.Errorf("invalid ollama host %q: %w", baseURL, err)
+	}
+
+	client := ollamaapi.NewClient(parsedURL, &http.Client{})
+	stream := false
+	think := ollamaapi.ThinkValue{Value: false}
+	temperature := 0.1
+	request := &ollamaapi.ChatRequest{
+		Model: cfg.Model,
+		Messages: []ollamaapi.Message{
+			{Role: "system", Content: messages.System},
+			{Role: "user", Content: util.MustJSON(messages.User)},
+		},
+		Stream: &stream,
+		Think:  &think,
+		Options: map[string]any{
+			"temperature": temperature,
+			"num_ctx":     32000,
+		},
+	}
+	if format := convertOllamaResponseFormat(suggestionResponseFormat()); format != nil {
+		request.Format = format
+	}
+
+	var response ollamaapi.ChatResponse
+	if err := client.Chat(ctx, request, func(resp ollamaapi.ChatResponse) error {
+		response = resp
+		return nil
+	}); err != nil {
+		return types.Suggestion{}, normalizeProviderError(cfg.Provider, err)
+	}
+
+	content := strings.TrimSpace(response.Message.Content)
+	if content == "" {
+		return types.Suggestion{}, fmt.Errorf("provider response did not contain message content")
+	}
+
+	jsonBody, err := util.ExtractJSONObject(content)
+	if err != nil {
+		return types.Suggestion{}, err
+	}
+
+	var suggestion types.Suggestion
+	if err := json.Unmarshal([]byte(jsonBody), &suggestion); err != nil {
+		return types.Suggestion{}, err
+	}
+
+	return suggestion, nil
+}
+
+func convertOllamaResponseFormat(format *anyllm.ResponseFormat) json.RawMessage {
+	if format == nil {
+		return nil
+	}
+	if format.Type == "json" {
+		return json.RawMessage(`"json"`)
+	}
+	if format.Type == "json_schema" && format.JSONSchema != nil {
+		if schemaBytes, err := json.Marshal(format.JSONSchema.Schema); err == nil {
+			return schemaBytes
+		}
+	}
+	return nil
 }
 
 func buildProvider(cfg types.Config) (anyllm.Provider, error) {
@@ -106,17 +185,17 @@ func suggestionResponseFormat() *anyllm.ResponseFormat {
 			Schema: map[string]any{
 				"type": "object",
 				"properties": map[string]any{
-					"command": map[string]any{"type": "string"},
-					"explanation": map[string]any{"type": "string"},
-					"risk": map[string]any{"type": "string", "enum": []string{"low", "medium", "high", "critical"}},
-					"requiresConfirmation": map[string]any{"type": "boolean"},
-					"needsClarification": map[string]any{"type": "boolean"},
+					"command":               map[string]any{"type": "string"},
+					"explanation":           map[string]any{"type": "string"},
+					"risk":                  map[string]any{"type": "string", "enum": []string{"low", "medium", "high", "critical"}},
+					"requiresConfirmation":  map[string]any{"type": "boolean"},
+					"needsClarification":    map[string]any{"type": "boolean"},
 					"clarificationQuestion": map[string]any{"type": "string"},
-					"notes": map[string]any{"type": "string"},
-					"platform": map[string]any{"type": "string"},
-					"refused": map[string]any{"type": "boolean"},
+					"notes":                 map[string]any{"type": "string"},
+					"platform":              map[string]any{"type": "string"},
+					"refused":               map[string]any{"type": "boolean"},
 				},
-				"required": []string{"risk", "requiresConfirmation", "needsClarification", "refused"},
+				"required":             []string{"risk", "requiresConfirmation", "needsClarification", "refused"},
 				"additionalProperties": false,
 			},
 		},

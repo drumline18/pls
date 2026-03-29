@@ -14,7 +14,9 @@ If the user already specified a unit, format, or scope, do not ask a clarificati
 For batch file operations, it is acceptable to return a short shell loop when that is the clearest single command.
 If the user explicitly named the destination shell config file or rc file and the alias text they want, do not ask a clarification question about that same alias setup.
 Do not assume GNU-only flags unless the supplied OS strongly suggests Linux.
-If the request is ambiguous, set needsClarification to true and ask exactly one short question.
+Bias toward a best-effort one-shot answer for common shell tasks.
+When a reasonable default is implied by the request, do not ask a clarification question; choose the default and mention the assumption in notes if helpful.
+If the request is ambiguous, set needsClarification to true only when the missing detail would materially change the target, scope, or safety of the command, and ask exactly one short question.
 If the request is dangerous, still respond with JSON but set refused=true when you should not provide a direct command.
 
 JSON schema:
@@ -88,6 +90,8 @@ func instructionsFor(runtimeContext types.RuntimeContext) []string {
 		return append(base,
 			"Prefer inspection commands for this MVP. Do not add execution wrappers, aliases, or shell functions.",
 			"If the user wants only files, only directories, or hidden entries, prefer direct find predicates or native flags instead of grepping ls output.",
+			"Treat phrases like 'under the current directory' or 'in this tree' as recursive scope unless the user explicitly asked for current-directory-only behavior.",
+			"For common inspection tasks like file sizes, largest files, or files above a threshold, choose a sensible default command instead of asking about output format; mention assumptions in notes if useful.",
 			"For Linux service checks phrased like 'check if jellyfin is running', prefer systemctl is-active <service> when the target looks like a service name, and mention container/manual-process alternatives in notes if needed.",
 			"For batch renames or metadata-based filename changes, a concise for-loop using purpose-built tools is acceptable.",
 			"For batch rename or move commands, use safe quoting, guard globs with [ -e \"$f\" ] || continue, and prefer basename over brittle parameter expansion when prefixing filenames.",
@@ -139,6 +143,18 @@ func linuxExamples(runtimeContext types.RuntimeContext) []map[string]any {
 			"mkdir -p \"./subtitles\" && for f in ./*.srt; do [ -e \"$f\" ] || continue; mv -- \"$f\" \"./subtitles/\"; done",
 			"Moves all .srt files from the current directory into the 'subtitles' folder.",
 			"high", true, false, "", "This creates the destination folder if needed and moves files into it.", "linux",
+		),
+		example(
+			"find files bigger than 500mb under the current directory",
+			"find . -type f -size +500M -print",
+			"Recursively lists files larger than 500 MB under the current directory.",
+			"low", false, false, "", "This treats 'under the current directory' as recursive scope.", "linux",
+		),
+		example(
+			"show the 10 biggest files under the current directory",
+			"find . -type f -printf '%s %p\n' | sort -rn | head -10",
+			"Recursively lists the 10 largest files under the current directory, sorted by size in bytes.",
+			"low", false, false, "", "This defaults to byte counts when the user did not request a human-readable format.", "linux",
 		),
 		example(
 			"add cd.. as an alias to cd .. in "+shellName,
