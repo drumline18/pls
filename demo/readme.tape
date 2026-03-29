@@ -1,9 +1,9 @@
 Output assets/pls-demo.webm
 
 Set Shell "bash"
-Set Width 1200
-Set Height 720
-Set FontSize 28
+Set Width 1280
+Set Height 820
+Set FontSize 24
 Set TypingSpeed 35ms
 Set WaitTimeout 20s
 
