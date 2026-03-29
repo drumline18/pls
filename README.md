@@ -47,40 +47,33 @@ That installs the `pls` binary into your Go bin directory.
 
 > If `pls` isn't found afterwards, make sure `$HOME/go/bin` is on your `PATH`.
 
-### Install from a local clone
-
-```bash
-git clone https://github.com/drumline18/pls.git
-cd pls
-make install
-```
-
-That installs `pls` to:
-
-```bash
-~/.local/bin/pls
-```
-
-### Build manually
-
-```bash
-git clone https://github.com/drumline18/pls.git
-cd pls
-go build -o bin/pls ./cmd/pls
-```
-
-### Homebrew
+### Homebrew (MacOS)
 
 ```bash
 brew tap drumline18/tap
 brew install pls
 ```
 
-### Scoop
+### Scoop (Windows)
 
 ```powershell
 scoop bucket add drumline18 https://github.com/drumline18/scoop-bucket
 scoop install pls
+```
+
+### Install from a local clone
+*With `make` :*
+```bash
+git clone https://github.com/drumline18/pls.git
+cd pls
+make install
+# Installs to ~/.local/bin/pls
+```
+*With Go :*
+```bash
+git clone https://github.com/drumline18/pls.git
+cd pls
+go build -o bin/pls ./cmd/pls
 ```
 
 ### Release archives
