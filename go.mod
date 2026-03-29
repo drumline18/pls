@@ -1,4 +1,4 @@
-module pls
+module github.com/drumline18/pls
 
 go 1.25
 

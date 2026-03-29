@@ -1,0 +1,33 @@
+class Pls < Formula
+  desc "Natural-language shell command suggester"
+  homepage "https://github.com/drumline18/pls"
+  version "__VERSION__"
+  license "MIT"
+
+  if Hardware::CPU.intel?
+    if OS.mac?
+      url "https://github.com/drumline18/pls/releases/download/v#{version}/pls_#{version}_darwin_amd64.tar.gz"
+      sha256 "__DARWIN_AMD64_SHA256__"
+    else
+      url "https://github.com/drumline18/pls/releases/download/v#{version}/pls_#{version}_linux_amd64.tar.gz"
+      sha256 "__LINUX_AMD64_SHA256__"
+    end
+  else
+    if OS.mac?
+      url "https://github.com/drumline18/pls/releases/download/v#{version}/pls_#{version}_darwin_arm64.tar.gz"
+      sha256 "__DARWIN_ARM64_SHA256__"
+    else
+      url "https://github.com/drumline18/pls/releases/download/v#{version}/pls_#{version}_linux_arm64.tar.gz"
+      sha256 "__LINUX_ARM64_SHA256__"
+    end
+  end
+
+  def install
+    bin.install "pls"
+  end
+
+  test do
+    output = shell_output("#{bin}/pls --help")
+    assert_match "pls", output
+  end
+end

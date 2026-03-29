@@ -17,8 +17,8 @@ import (
 	"github.com/mozilla-ai/any-llm-go/providers/ollama"
 	"github.com/mozilla-ai/any-llm-go/providers/openai"
 	"github.com/mozilla-ai/any-llm-go/providers/zai"
-	"pls/internal/types"
-	"pls/internal/util"
+	"github.com/drumline18/pls/internal/types"
+	"github.com/drumline18/pls/internal/util"
 )
 
 func Generate(ctx context.Context, cfg types.Config, messages types.Messages) (types.Suggestion, error) {

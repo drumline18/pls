@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"pls/internal/config"
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/config"
+	"github.com/drumline18/pls/internal/types"
 )
 
 const (

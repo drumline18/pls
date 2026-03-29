@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/types"
 )
 
 var hiddenListPattern = regexp.MustCompile(`(?i)^ls\b.*\|\s*grep\s+['"]\^\.[^'"]*['"]$`)

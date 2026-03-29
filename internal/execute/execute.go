@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/types"
 )
 
 func MaybePromptAndRun(result types.Suggestion, runtimeContext types.RuntimeContext, flags types.Flags) (bool, int, error) {

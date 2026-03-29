@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"pls/internal/config"
-	runtimeinfo "pls/internal/runtimeinfo"
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/config"
+	runtimeinfo "github.com/drumline18/pls/internal/runtimeinfo"
+	"github.com/drumline18/pls/internal/types"
 )
 
 type Report struct {

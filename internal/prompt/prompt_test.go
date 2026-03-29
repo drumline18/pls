@@ -3,7 +3,7 @@ package prompt
 import (
 	"testing"
 
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/types"
 )
 
 func TestBuildIncludesLinuxExamples(t *testing.T) {

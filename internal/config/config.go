@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/types"
 )
 
 type FileConfig struct {

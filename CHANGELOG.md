@@ -12,3 +12,6 @@ The project is currently in pre-release / pre-open-source preparation.
 - config init and local config init flows
 - provider-aware config UX across supported providers
 - open-source / release scaffolding added
+- public module path set to `github.com/drumline18/pls`
+- MIT license selected
+- Homebrew / Scoop packaging templates added

@@ -4,8 +4,9 @@
 
 Status:
 - actively being prepared for open source and distribution
+- planned public repo: `github.com/drumline18/pls`
 - not published yet
-- local install works today; public `go install` needs the final public module path
+- module path and MIT license are set; public `go install` will work once the repo exists publicly
 
 Current MVP goals:
 - command generation first, with optional confirmed execution
@@ -276,17 +277,30 @@ If you are using a non-default Go binary, the same install works with that toolc
 GOBIN=$HOME/.local/bin ~/.local/bin/go1.26 install ./cmd/pls
 ```
 
+Planned public install command once the repo is live:
+
+```bash
+go install github.com/drumline18/pls/cmd/pls@latest
+```
+
 ## Distribution status
 
 Planned public distribution path:
 - GitHub Releases archives via GoReleaser
-- `go install` after the final public module path is set
-- Homebrew and Scoop after the first public release works cleanly
+- `go install github.com/drumline18/pls/cmd/pls@latest`
+- Homebrew via a future `drumline18/homebrew-tap`
+- Scoop via a future `drumline18/scoop-bucket`
 
-Not ready yet:
-- final public module path in `go.mod`
-- explicit `LICENSE`
-- published release artifacts
+Already prepared:
+- public module path in `go.mod`
+- MIT `LICENSE`
+- GoReleaser release archives/checksums
+- packaging templates under `packaging/`
+
+Still not done:
+- actual public repo push/publish
+- first tagged release artifacts
+- live Homebrew tap / Scoop bucket repos
 
 See `RELEASE.md` for the current pre-publish checklist.
 
@@ -348,6 +362,12 @@ make build
 make print-config-path
 make release-snapshot
 ```
+
+Useful packaging/release prep files:
+- `RELEASE.md`
+- `packaging/README.md`
+- `packaging/homebrew/pls.rb.tmpl`
+- `packaging/scoop/pls.json.tmpl`
 
 If your default Go is too old:
 

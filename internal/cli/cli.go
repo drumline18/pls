@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/types"
 )
 
 var flagsWithValues = map[string]func(*types.Flags, string){

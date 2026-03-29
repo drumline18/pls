@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"pls/internal/types"
+	"github.com/drumline18/pls/internal/types"
 )
 
 func TestHumanIncludesJokeAndConfigSections(t *testing.T) {
