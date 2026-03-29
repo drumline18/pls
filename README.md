@@ -1,4 +1,4 @@
-# pls
+# pls — ask your computer nicely
 
 `pls` is a natural-language shell command suggester written in Go.
 
