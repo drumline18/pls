@@ -8,41 +8,17 @@ Current chosen settings:
 - license: MIT
 - recommended first version: `v0.1.0`
 
-## Current local state
+## Current state
 
-- GitHub auth is already active for `drumline18`
-- `drumline18/pls` does not exist yet
-- local branch is currently `master`
-- no git remote is configured yet
+- GitHub auth is active for `drumline18`
+- `drumline18/pls` already exists and is public
+- default branch is `main`
 
-## 1) Create the GitHub repo
+## 1) Sync the latest code
 
-From the `pls` repo root:
+The public repo is maintained from the local `pls/` subtree inside the workspace. Push updates before tagging a release.
 
-```bash
-gh repo create drumline18/pls \
-  --public \
-  --source=. \
-  --remote=origin \
-  --description "Natural-language shell command suggester written in Go"
-```
-
-## 2) Push the code
-
-```bash
-git push -u origin master
-```
-
-If you want to rename the default branch to `main` first:
-
-```bash
-git branch -m master main
-git push -u origin main
-```
-
-The current workflows accept either `master` or `main`.
-
-## 3) Create the first tag
+## 2) Create the first tag
 
 ```bash
 git tag v0.1.0
@@ -105,6 +81,6 @@ Then copy:
 
 ## Notes
 
-- Do not run the repo-create/push/tag steps until you are ready to publish.
-- `go install github.com/drumline18/pls/cmd/pls@latest` will work once the repo is public and reachable.
+- `go install github.com/drumline18/pls/cmd/pls@latest` already works because the repo is public.
+- GitHub Releases / packaged binaries are the next release task.
 - If you want GitHub Releases to happen in CI later, we can add a tag-triggered publish workflow next.
